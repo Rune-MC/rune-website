@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { currentLocksmithUser, currentUser } from "@/lib/auth/server";
+import { currentUser } from "@/lib/auth/server";
 
 export const metadata: Metadata = {
   title: "Settings",
 };
 
 export default async function SettingsPage() {
-  const locksmith = await currentLocksmithUser();
-  if (!locksmith) redirect("/login");
+  const me = await currentUser();
+  if (!me) redirect("/login?next=/dashboard/settings");
 
-  const bridged = await currentUser();
-  const username = bridged?.doc.username ?? null;
+  const { doc } = me;
 
   return (
     <div>
@@ -26,17 +25,34 @@ export default async function SettingsPage() {
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex gap-3">
               <dt className="w-24 font-mono text-xs text-muted-foreground">
-                email
+                github
               </dt>
-              <dd className="text-foreground">{locksmith.email}</dd>
+              <dd className="text-foreground">
+                <a
+                  href={`https://github.com/${doc.githubLogin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary transition-colors hover:text-primary-hover"
+                >
+                  @{doc.githubLogin}
+                </a>
+              </dd>
             </div>
+            {doc.email && (
+              <div className="flex gap-3">
+                <dt className="w-24 font-mono text-xs text-muted-foreground">
+                  email
+                </dt>
+                <dd className="text-foreground">{doc.email}</dd>
+              </div>
+            )}
             <div className="flex gap-3">
               <dt className="w-24 font-mono text-xs text-muted-foreground">
                 username
               </dt>
               <dd className="text-foreground">
-                {username ? (
-                  <code>@{username}</code>
+                {doc.username ? (
+                  <code>@{doc.username}</code>
                 ) : (
                   <span className="text-muted-foreground">not set</span>
                 )}
@@ -44,8 +60,9 @@ export default async function SettingsPage() {
             </div>
           </dl>
           <p className="mt-4 text-xs text-muted-foreground">
-            Identity is managed by Locksmith. Username is permanent once claimed
-            (no rename in v1); maintainers can transfer ownership instead.
+            Authentication is tied to your GitHub account. Username is permanent
+            once claimed (no rename in v1); maintainers can transfer ownership
+            instead.
           </p>
         </article>
 

@@ -7,12 +7,12 @@ import mongoose, {
 
 const userSchema = new Schema(
   {
-    locksmithSub: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-    },
+    /** GitHub user numeric id. Stable across username changes — our primary link. */
+    githubId: { type: Number, required: true, unique: true, index: true },
+    /** The user's GitHub login at the time of last sign-in. Display + audit only. */
+    githubLogin: { type: String, required: true },
+    /** Primary email from GitHub. May be null if the user has none verified. */
+    email: String,
     username: {
       type: String,
       unique: true,

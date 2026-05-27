@@ -12,7 +12,6 @@ export default async function WelcomePage() {
   const bridged = await currentUser();
   if (!bridged) {
     if (!isDbConfigured()) {
-      // DB not wired yet — show the form anyway so the visual is testable.
       return (
         <div className="max-w-md">
           <p className="mb-6 font-mono text-xs text-muted-foreground">
@@ -31,7 +30,7 @@ export default async function WelcomePage() {
         </div>
       );
     }
-    redirect("/login");
+    redirect("/login?next=/dashboard/welcome");
   }
 
   if (bridged.doc.username) {
@@ -49,7 +48,7 @@ export default async function WelcomePage() {
         lives under <code>@&lt;username&gt;/...</code>.
       </p>
       <p className="mt-2 text-xs text-muted-foreground">
-        Signed in as <code>{bridged.locksmith.email}</code>.
+        Signed in as <code>@{bridged.doc.githubLogin}</code> on GitHub.
       </p>
       <div className="mt-8">
         <UsernameForm />

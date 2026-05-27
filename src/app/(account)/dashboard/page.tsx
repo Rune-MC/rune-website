@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { currentLocksmithUser, currentUser } from "@/lib/auth/server";
+import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Rune } from "@/lib/db/models/rune";
 import { runeNameToUrl } from "@/lib/runebook-urls";
@@ -13,11 +13,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const locksmith = await currentLocksmithUser();
-  if (!locksmith) redirect("/login");
-
   const bridged = await currentUser();
-  const username = bridged?.doc.username ?? null;
+  if (!bridged) redirect("/login?next=/dashboard");
+  const username = bridged.doc.username ?? null;
 
   let runes: Array<{
     name: string;
@@ -26,7 +24,7 @@ export default async function DashboardPage() {
     updatedAt: string | null;
   }> = [];
 
-  if (bridged && isDbConfigured()) {
+  if (isDbConfigured()) {
     await connectDb();
     const docs = await Rune.find({
       "owners.userId": bridged.doc._id,
@@ -50,7 +48,7 @@ export default async function DashboardPage() {
         Your Runes.
       </h1>
       <p className="mt-3 max-w-prose text-sm text-foreground">
-        Signed in as <code>{locksmith.email}</code>.
+        Signed in as <code>@{bridged.doc.githubLogin}</code>.
       </p>
 
       <div className="mt-12 divide-y divide-border">
