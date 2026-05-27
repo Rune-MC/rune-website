@@ -27,7 +27,9 @@ function Err($msg)  { Write-Host "[rune] $msg" -ForegroundColor Red }
 # Read-Host works even under `irm | iex` because PowerShell's host reads
 # from the console UI directly, not the pipeline stdin we just consumed.
 function Prompt-Line($question, $default = "") {
-    if ($default) { $q = "$question [$default]: " } else { $q = "$question: " }
+    # `${question}` (not `$question`) so PowerShell doesn't parse the
+    # trailing `:` as the start of a PSDrive specifier (`$env:PATH` syntax).
+    if ($default) { $q = "${question} [$default]: " } else { $q = "${question}: " }
     $ans = Read-Host -Prompt $q
     if ([string]::IsNullOrWhiteSpace($ans)) { return $default }
     return $ans

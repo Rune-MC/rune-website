@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchBar } from "./search-bar";
 
@@ -29,7 +30,9 @@ export function RunebookHeader({ userLabel }: Props) {
           </Link>
         </div>
         <div className="md:flex-1">
-          <SearchBar variant="header" />
+          <Suspense fallback={<SearchBarFallback />}>
+            <SearchBar variant="header" />
+          </Suspense>
         </div>
         <nav className="flex items-center gap-6 font-mono text-sm">
           <Link
@@ -57,5 +60,14 @@ export function RunebookHeader({ userLabel }: Props) {
         </nav>
       </div>
     </header>
+  );
+}
+
+function SearchBarFallback() {
+  return (
+    <div
+      aria-hidden="true"
+      className="h-9 w-full max-w-md rounded border border-border bg-background"
+    />
   );
 }
