@@ -15,17 +15,21 @@ export const siteConfig = {
   },
 } as const;
 
+// `https://` is mandatory on the Windows side: Vercel 308's http→https,
+// and Windows PowerShell 5.1's Invoke-RestMethod refuses to follow a
+// protocol-changing redirect. curl on the unix side handles it fine with
+// -L, but we keep the schemes consistent for copy-paste sanity.
 export const installCommands = [
   {
     id: "unix",
     label: "macOS / Linux",
-    command: "curl -fsSL runemc.dev/install.sh | bash",
+    command: "curl -fsSL https://runemc.dev/install.sh | bash",
     prompt: "$",
   },
   {
     id: "windows",
     label: "Windows",
-    command: "irm runemc.dev/install.ps1 | iex",
+    command: "irm https://runemc.dev/install.ps1 | iex",
     prompt: ">",
   },
 ] as const;

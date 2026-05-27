@@ -1,6 +1,10 @@
 # Rune one-line installer (Windows).
 #
-#   irm runemc.dev/install.ps1 | iex
+#   irm https://runemc.dev/install.ps1 | iex
+#
+# Note the `https://` — Windows PowerShell 5.1's Invoke-RestMethod
+# refuses to follow Vercel's automatic http→https redirect (308) for
+# security reasons, so the schemeless form fails with a 308 error.
 #
 # What this does:
 #   1. Fetches the latest Rune release from GitHub.
