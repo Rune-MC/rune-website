@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Errors, route } from "@/lib/api";
 import { connectDb, isDbConfigured } from "@/lib/db";
+import { Org } from "@/lib/db/models/org";
 import { RUNE_NAME_PATTERN, Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import { User } from "@/lib/db/models/user";
@@ -26,17 +27,19 @@ export const GET = route({
       .sort({ publishedAt: -1, createdAt: -1 })
       .lean();
 
-    const ownerIds = rune.owners.map((o) => o.userId);
-    const owners = await User.find({ _id: { $in: ownerIds } })
-      .lean()
-      .then((users) => {
-        const byId = new Map(users.map((u) => [String(u._id), u]));
-        return rune.owners.map((o) => ({
-          username: byId.get(String(o.userId))?.username ?? null,
-          role: o.role,
-          grantedAt: o.grantedAt,
-        }));
-      });
+    let owner: { kind: "user" | "org"; name: string | null } = {
+      kind: rune.ownerKind,
+      name: null,
+    };
+    if (rune.ownerKind === "user") {
+      const u = await User.findById(rune.ownerId)
+        .select({ username: 1, githubLogin: 1 })
+        .lean();
+      owner = { kind: "user", name: u?.username ?? u?.githubLogin ?? null };
+    } else {
+      const o = await Org.findById(rune.ownerId).select({ name: 1 }).lean();
+      owner = { kind: "org", name: o?.name ?? null };
+    }
 
     return {
       name: rune.name,
@@ -50,7 +53,7 @@ export const GET = route({
         rune.createdAt instanceof Date ? rune.createdAt.toISOString() : null,
       updated_at:
         rune.updatedAt instanceof Date ? rune.updatedAt.toISOString() : null,
-      owners,
+      owner,
       versions: versions
         .filter((v) => v.status !== "pending")
         .map((v) => ({

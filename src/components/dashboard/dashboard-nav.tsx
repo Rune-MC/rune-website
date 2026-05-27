@@ -3,17 +3,24 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navItems = [
-  { label: "overview", href: "/dashboard" },
-  { label: "tokens", href: "/dashboard/tokens" },
-  { label: "settings", href: "/dashboard/settings" },
-];
+interface Props {
+  isPlatformStaff?: boolean;
+}
 
-export function DashboardNav() {
+export function DashboardNav({ isPlatformStaff }: Props) {
   const pathname = usePathname();
 
+  const navItems = [
+    { label: "overview", href: "/dashboard" },
+    { label: "orgs", href: "/dashboard/orgs" },
+    { label: "tokens", href: "/dashboard/tokens" },
+    { label: "notifications", href: "/dashboard/notifications" },
+    { label: "settings", href: "/dashboard/settings" },
+    ...(isPlatformStaff ? [{ label: "admin", href: "/admin" }] : []),
+  ];
+
   return (
-    <nav className="flex items-center gap-6 font-mono text-sm">
+    <nav className="flex flex-wrap items-center gap-6 font-mono text-sm">
       {navItems.map((item) => {
         const isActive =
           pathname === item.href ||

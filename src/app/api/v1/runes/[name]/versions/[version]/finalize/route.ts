@@ -7,6 +7,7 @@ import { formatHash, hashHex } from "@/lib/manifest";
 import { isR2Configured } from "@/lib/r2";
 import { blobKey } from "@/lib/r2/keys";
 import { blobExists } from "@/lib/r2/signed-urls";
+import { canPublishVersion } from "@/lib/rune-ownership";
 import { isNewer } from "@/lib/semver";
 
 const params = z.object({
@@ -34,10 +35,10 @@ export const POST = route({
     const rune = await Rune.findOne({ name: params.name });
     if (!rune) throw new Errors.NotFound("Rune not found");
 
-    const isOwner = rune.owners.some(
-      (o) => String(o.userId) === String(auth.user._id),
-    );
-    if (!isOwner) throw new Errors.Forbidden();
+    const authz = await canPublishVersion(auth.user, rune);
+    if (!authz.canPublish) {
+      throw new Errors.Forbidden(authz.reason ?? "Cannot finalize");
+    }
 
     const version = await RuneVersion.findOne({
       runeId: rune._id,

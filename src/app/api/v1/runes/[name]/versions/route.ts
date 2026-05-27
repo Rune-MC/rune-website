@@ -15,6 +15,9 @@ import {
 import { isR2Configured, r2Bucket, r2Client } from "@/lib/r2";
 import { blobKey, manifestKey } from "@/lib/r2/keys";
 import { blobExists, presignedBlobPut } from "@/lib/r2/signed-urls";
+import { ORG_PERMISSIONS } from "@/lib/rbac/permissions";
+import { can } from "@/lib/rbac/resolver";
+import { canPublishVersion, resolveScopeOwner } from "@/lib/rune-ownership";
 
 const params = z.object({
   name: z.string().regex(RUNE_NAME_PATTERN),
@@ -26,12 +29,6 @@ const body = z.object({
 
 const SCOPE_PATTERN = /^@([a-z0-9-]+)\/[a-z0-9-]+$/;
 
-/**
- * Create a new version (pending). Stores the manifest in R2 + Mongo, returns
- * presigned PUT URLs for any blobs not already in R2.
- *
- * The version stays in `pending` state until `finalize` is called.
- */
 export const POST = route({
   auth: "any",
   params,
@@ -53,39 +50,60 @@ export const POST = route({
 
     await connectDb();
 
-    // Scope check: `@scope/name` requires `auth.user.username === scope`.
-    const scopeMatch = params.name.match(SCOPE_PATTERN);
-    if (scopeMatch) {
-      const scope = scopeMatch[1];
-      if (!auth.user.username) {
-        throw new Errors.Forbidden(
-          "Claim a username before publishing scoped Runes",
-        );
-      }
-      if (auth.user.username !== scope) {
-        throw new Errors.Forbidden(`Not the owner of @${scope}/*`);
-      }
-    }
-
-    // Find or claim the Rune doc.
     let rune = await Rune.findOne({ name: params.name });
     if (rune) {
-      const isOwner = rune.owners.some(
-        (o) => String(o.userId) === String(auth.user._id),
-      );
-      if (!isOwner) throw new Errors.Forbidden("Not an owner of this Rune");
+      const authz = await canPublishVersion(auth.user, rune);
+      if (!authz.canPublish) {
+        throw new Errors.Forbidden(authz.reason ?? "Cannot publish");
+      }
     } else {
+      // First publish — determine the owner from the scope.
+      const scopeMatch = params.name.match(SCOPE_PATTERN);
+      let ownerKind: "user" | "org" = "user";
+      let ownerId = auth.user._id;
+
+      if (scopeMatch) {
+        const scope = scopeMatch[1];
+        const resolved = await resolveScopeOwner(scope);
+        if (!resolved) {
+          throw new Errors.Forbidden(`@${scope} is not claimed`);
+        }
+        if (resolved.kind === "user") {
+          if (String(resolved.id) !== String(auth.user._id)) {
+            throw new Errors.Forbidden(`Not the owner of @${scope}/*`);
+          }
+        } else {
+          // Org scope — check publish permission for the org.
+          const allowed = await can(
+            auth.user,
+            ORG_PERMISSIONS.PACKAGE_PUBLISH,
+            { orgId: resolved.id },
+          );
+          if (!allowed) {
+            throw new Errors.Forbidden(
+              `Missing publish permission for @${scope}`,
+            );
+          }
+          ownerKind = "org";
+          ownerId = resolved.id;
+        }
+      } else {
+        // Unscoped — must be claimed by anyone yet. First publisher wins.
+        ownerKind = "user";
+        ownerId = auth.user._id;
+      }
+
       rune = await Rune.create({
         name: params.name,
         description: body.manifest.metadata?.description,
         homepage: body.manifest.metadata?.homepage,
         repository: body.manifest.metadata?.repository,
         license: body.manifest.metadata?.license,
-        owners: [{ userId: auth.user._id, role: "owner" }],
+        ownerKind,
+        ownerId,
       });
     }
 
-    // Version uniqueness.
     const existing = await RuneVersion.findOne({
       runeId: rune._id,
       version: body.manifest.version,
@@ -96,7 +114,6 @@ export const POST = route({
       );
     }
 
-    // Compute manifest hash + upload to R2 (manifests/<hex>).
     const mBytes = manifestBytes(body.manifest);
     const mHash = manifestHash(body.manifest);
     const mHashHex = hashHex(mHash);
@@ -109,7 +126,6 @@ export const POST = route({
       }),
     );
 
-    // Determine which file blobs are missing from R2.
     const blobBuffers = body.manifest.files.map((f) => parseHash(f.hash));
     const blobHexes = blobBuffers.map(hashHex);
     const existsChecks = await Promise.all(
@@ -133,12 +149,10 @@ export const POST = route({
       }),
     );
 
-    // Optional readme pointer.
     const readmeBlobHash = body.manifest.metadata?.readme
       ? parseHash(body.manifest.metadata.readme)
       : undefined;
 
-    // Create the pending version doc.
     const version = await RuneVersion.create({
       runeId: rune._id,
       version: body.manifest.version,

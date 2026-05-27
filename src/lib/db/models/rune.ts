@@ -6,21 +6,8 @@ import mongoose, {
 } from "mongoose";
 
 export const RUNE_NAME_PATTERN = /^(@[a-z0-9-]+\/)?[a-z0-9-]+$/;
-export const RUNE_OWNER_ROLES = ["owner", "maintainer"] as const;
-export type RuneOwnerRole = (typeof RUNE_OWNER_ROLES)[number];
-
-const ownerSchema = new Schema(
-  {
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    role: {
-      type: String,
-      enum: RUNE_OWNER_ROLES,
-      default: "owner" satisfies RuneOwnerRole,
-    },
-    grantedAt: { type: Date, default: () => new Date() },
-  },
-  { _id: false },
-);
+export const RUNE_OWNER_KINDS = ["user", "org"] as const;
+export type RuneOwnerKind = (typeof RUNE_OWNER_KINDS)[number];
 
 const runeSchema = new Schema(
   {
@@ -39,7 +26,28 @@ const runeSchema = new Schema(
     latestVersion: String,
     latestVersionId: { type: Schema.Types.ObjectId, ref: "RuneVersion" },
     totalDownloads: { type: Number, default: 0 },
-    owners: { type: [ownerSchema], default: [] },
+    /**
+     * Canonical owner — what determines the scope. A user-owned Rune
+     * derives `@<username>/foo` (or no scope if the user is unscoped); an
+     * org-owned Rune derives `@<orgname>/foo`.
+     */
+    ownerKind: {
+      type: String,
+      enum: RUNE_OWNER_KINDS,
+      required: true,
+      index: true,
+    },
+    ownerId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      index: true,
+    },
+    /**
+     * Additional users who can publish/yank for this Rune. Org-owned Runes
+     * use the org's RBAC instead of this list; this is for user-owned
+     * Runes that want collaborator access.
+     */
+    maintainerIds: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
   },
   {
     timestamps: { createdAt: true, updatedAt: true },
@@ -47,9 +55,7 @@ const runeSchema = new Schema(
   },
 );
 
-// Text index for $text search fallback. Atlas Search (when configured)
-// indexes the same fields via the `default` index and is queried via
-// `$search` instead — see `src/app/api/v1/search/route.ts`.
+// Text index for $text search fallback.
 runeSchema.index(
   { name: "text", description: "text" },
   { weights: { name: 10, description: 1 } },

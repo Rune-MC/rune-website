@@ -27,7 +27,8 @@ export default async function DashboardPage() {
   if (isDbConfigured()) {
     await connectDb();
     const docs = await Rune.find({
-      "owners.userId": bridged.doc._id,
+      ownerKind: "user",
+      ownerId: bridged.doc._id,
       latestVersionId: { $exists: true },
     })
       .sort({ updatedAt: -1 })

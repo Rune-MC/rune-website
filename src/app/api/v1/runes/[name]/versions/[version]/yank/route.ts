@@ -3,6 +3,7 @@ import { Errors, requireScope, route } from "@/lib/api";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { RUNE_NAME_PATTERN, Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
+import { canYankVersion } from "@/lib/rune-ownership";
 
 const params = z.object({
   name: z.string().regex(RUNE_NAME_PATTERN),
@@ -33,16 +34,15 @@ export const POST = route({
     const rune = await Rune.findOne({ name: params.name });
     if (!rune) throw new Errors.NotFound("Rune not found");
 
-    const isOwner = rune.owners.some(
-      (o) => String(o.userId) === String(auth.user._id),
-    );
-    if (!isOwner) throw new Errors.Forbidden();
-
     const version = await RuneVersion.findOne({
       runeId: rune._id,
       version: params.version,
     });
     if (!version) throw new Errors.NotFound("Version not found");
+
+    const allowed = await canYankVersion(auth.user, rune, version.publishedBy);
+    if (!allowed)
+      throw new Errors.Forbidden("Not allowed to yank this version");
     if (version.status === "yanked") {
       throw new Errors.Conflict("Version already yanked");
     }

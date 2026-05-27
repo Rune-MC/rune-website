@@ -35,7 +35,8 @@ export default async function UserProfilePage({
   if (!user) notFound();
 
   const runes = await Rune.find({
-    "owners.userId": user._id,
+    ownerKind: "user",
+    ownerId: user._id,
     latestVersionId: { $exists: true },
   })
     .sort({ updatedAt: -1 })

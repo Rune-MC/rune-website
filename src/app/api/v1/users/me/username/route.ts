@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Errors, route } from "@/lib/api";
 import { connectDb, isDbConfigured } from "@/lib/db";
-import { User } from "@/lib/db/models/user";
+import { isReservedScope, isScopeTaken, SCOPE_PATTERN } from "@/lib/scope";
 
 const body = z.object({
   username: z
@@ -10,7 +10,7 @@ const body = z.object({
     .toLowerCase()
     .min(3)
     .max(32)
-    .regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers, and hyphens only"),
+    .regex(SCOPE_PATTERN, "Lowercase letters, numbers, and hyphens only"),
 });
 
 export const POST = route({
@@ -26,9 +26,15 @@ export const POST = route({
       );
     }
 
-    const existing = await User.findOne({ username: body.username });
-    if (existing && String(existing._id) !== String(auth.user._id)) {
-      throw new Errors.Conflict(`@${body.username} is taken`);
+    if (isReservedScope(body.username)) {
+      throw new Errors.Conflict(`@${body.username} is reserved`);
+    }
+
+    if (auth.user.username !== body.username) {
+      const taken = await isScopeTaken(body.username);
+      if (taken) {
+        throw new Errors.Conflict(`@${body.username} is taken`);
+      }
     }
 
     auth.user.username = body.username;

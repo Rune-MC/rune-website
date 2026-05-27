@@ -5,6 +5,9 @@ import mongoose, {
   Schema,
 } from "mongoose";
 
+export const PLATFORM_ROLES = ["owner", "admin"] as const;
+export type PlatformRole = (typeof PLATFORM_ROLES)[number];
+
 const userSchema = new Schema(
   {
     /** GitHub user numeric id. Stable across username changes — our primary link. */
@@ -26,6 +29,18 @@ const userSchema = new Schema(
     displayName: String,
     avatarUrl: String,
     emailVisible: { type: Boolean, default: false },
+    /**
+     * Platform-level role. Only set for Rune staff. Regular users have no
+     * platform role and are bound only by their org memberships.
+     */
+    platformRole: {
+      type: String,
+      enum: PLATFORM_ROLES,
+      required: false,
+    },
+    /** Suspended users cannot publish, accept invitations, or sign in. */
+    suspendedAt: Date,
+    suspendedReason: String,
   },
   { timestamps: { createdAt: true, updatedAt: true }, collection: "users" },
 );

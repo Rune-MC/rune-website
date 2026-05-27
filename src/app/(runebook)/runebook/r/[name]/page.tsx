@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
 import { CapabilityList } from "@/components/runebook/capability-list";
 import { connectDb, isDbConfigured } from "@/lib/db";
+import { Org } from "@/lib/db/models/org";
 import { Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import { User } from "@/lib/db/models/user";
@@ -28,11 +29,31 @@ async function loadRune(rawName: string) {
     .sort({ publishedAt: -1, createdAt: -1 })
     .lean();
 
-  const ownerIds = rune.owners.map((o) => o.userId);
-  const owners = await User.find({ _id: { $in: ownerIds } }).lean();
-  const ownersById = new Map(owners.map((u) => [String(u._id), u]));
+  let ownerDisplay: {
+    kind: "user" | "org";
+    name: string | null;
+    href: string | null;
+  };
+  if (rune.ownerKind === "user") {
+    const u = await User.findById(rune.ownerId)
+      .select({ username: 1, githubLogin: 1 })
+      .lean();
+    const name = u?.username ?? u?.githubLogin ?? null;
+    ownerDisplay = {
+      kind: "user",
+      name,
+      href: u?.username ? `/runebook/u/${u.username}` : null,
+    };
+  } else {
+    const o = await Org.findById(rune.ownerId).select({ name: 1 }).lean();
+    ownerDisplay = {
+      kind: "org",
+      name: o?.name ?? null,
+      href: o?.name ? `/runebook/o/${o.name}` : null,
+    };
+  }
 
-  return { rune, versions, ownersById };
+  return { rune, versions, ownerDisplay };
 }
 
 export async function generateMetadata({
@@ -57,7 +78,7 @@ export default async function RuneDetailPage({
   const loaded = await loadRune(name);
   if (!loaded) notFound();
 
-  const { rune, versions, ownersById } = loaded;
+  const { rune, versions, ownerDisplay } = loaded;
   const latest =
     (rune.latestVersionId
       ? versions.find((v) => String(v._id) === String(rune.latestVersionId))
@@ -203,23 +224,32 @@ export default async function RuneDetailPage({
               />
             )}
             <MetaRow
-              label="owners"
+              label="owner"
               value={
-                <span className="flex flex-wrap gap-2">
-                  {rune.owners.map((o) => {
-                    const u = ownersById.get(String(o.userId));
-                    if (!u?.username) return null;
-                    return (
-                      <Link
-                        key={u.username}
-                        href={`/runebook/u/${u.username}`}
-                        className="font-mono text-sm text-foreground transition-colors hover:text-primary-hover"
-                      >
-                        @{u.username}
-                      </Link>
-                    );
-                  })}
-                </span>
+                ownerDisplay.name ? (
+                  ownerDisplay.href ? (
+                    <Link
+                      href={ownerDisplay.href}
+                      className="font-mono text-sm text-foreground transition-colors hover:text-primary-hover"
+                    >
+                      {ownerDisplay.kind === "org" ? "@" : "@"}
+                      {ownerDisplay.name}
+                      {ownerDisplay.kind === "org" && (
+                        <span className="ml-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                          org
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    <span className="font-mono text-sm text-muted-foreground">
+                      @{ownerDisplay.name}
+                    </span>
+                  )
+                ) : (
+                  <span className="font-mono text-sm text-muted-foreground">
+                    unknown
+                  </span>
+                )
               }
             />
             <MetaRow
