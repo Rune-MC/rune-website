@@ -1,5 +1,6 @@
 import type { Types } from "mongoose";
 import { Org } from "@/lib/db/models/org";
+import { OrgMember } from "@/lib/db/models/org-member";
 import type { RuneDoc } from "@/lib/db/models/rune";
 import { User, type UserDoc } from "@/lib/db/models/user";
 import { ORG_PERMISSIONS } from "@/lib/rbac/permissions";
@@ -71,6 +72,29 @@ export async function canPublishVersion(
     };
   }
   return { canPublish: true, publisherOk: true };
+}
+
+/**
+ * Whether `user` can see this Rune. Public Runes are visible to everyone.
+ * Private Runes are visible to the owner / maintainers / org members and
+ * platform staff. Pass `null` for anonymous browsers — they only see public.
+ */
+export async function canReadRune(
+  user: UserDoc | null,
+  rune: Pick<RuneDoc, "ownerKind" | "ownerId" | "maintainerIds" | "visibility">,
+): Promise<boolean> {
+  if (rune.visibility === "public") return true;
+  if (!user) return false;
+  if (user.platformRole) return true;
+  if (rune.ownerKind === "user") {
+    if (String(rune.ownerId) === String(user._id)) return true;
+    return rune.maintainerIds.some((id) => String(id) === String(user._id));
+  }
+  const membership = await OrgMember.exists({
+    orgId: rune.ownerId,
+    userId: user._id,
+  });
+  return Boolean(membership);
 }
 
 /** Check yank rights. Owners + maintainers + org members with the perm. */

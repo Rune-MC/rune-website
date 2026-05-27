@@ -6,15 +6,16 @@ import { RUNE_NAME_PATTERN, Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import { User } from "@/lib/db/models/user";
 import { formatHash } from "@/lib/manifest";
+import { canReadRune } from "@/lib/rune-ownership";
 
 const params = z.object({
   name: z.string().regex(RUNE_NAME_PATTERN),
 });
 
 export const GET = route({
-  auth: false,
+  auth: "optional",
   params,
-  handler: async ({ params }) => {
+  handler: async ({ params, auth }) => {
     if (!isDbConfigured()) {
       throw new Errors.ServiceUnavailable("Database not configured");
     }
@@ -22,6 +23,9 @@ export const GET = route({
 
     const rune = await Rune.findOne({ name: params.name }).lean();
     if (!rune) throw new Errors.NotFound("Rune not found");
+
+    const visible = await canReadRune(auth?.user ?? null, rune);
+    if (!visible) throw new Errors.NotFound("Rune not found");
 
     const versions = await RuneVersion.find({ runeId: rune._id })
       .sort({ publishedAt: -1, createdAt: -1 })
@@ -54,6 +58,7 @@ export const GET = route({
       updated_at:
         rune.updatedAt instanceof Date ? rune.updatedAt.toISOString() : null,
       owner,
+      visibility: rune.visibility ?? "public",
       versions: versions
         .filter((v) => v.status !== "pending")
         .map((v) => ({

@@ -5,6 +5,7 @@ import { Org } from "@/lib/db/models/org";
 import { OrgMember } from "@/lib/db/models/org-member";
 import { Rune } from "@/lib/db/models/rune";
 import { runeNameToUrl } from "@/lib/runebook-urls";
+import { VisibilityToggle } from "./visibility-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -56,17 +57,25 @@ export default async function OrgOverviewPage({
             {runes.map((r) => (
               <li
                 key={r.name}
-                className="flex items-baseline justify-between gap-4 py-3"
+                className="flex flex-wrap items-baseline justify-between gap-3 py-3"
               >
-                <Link
-                  href={`/runebook/r/${runeNameToUrl(r.name)}`}
-                  className="font-mono text-sm text-foreground transition-colors hover:text-primary-hover"
-                >
-                  {r.name}
-                </Link>
-                <span className="font-mono text-xs text-muted-foreground">
-                  v{r.latestVersion ?? "—"}
-                </span>
+                <div className="flex items-baseline gap-3">
+                  <Link
+                    href={`/runebook/r/${runeNameToUrl(r.name)}`}
+                    className="font-mono text-sm text-foreground transition-colors hover:text-primary-hover"
+                  >
+                    {r.name}
+                  </Link>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    v{r.latestVersion ?? "—"}
+                  </span>
+                </div>
+                <VisibilityToggle
+                  runeName={r.name}
+                  initialVisibility={
+                    (r.visibility as "public" | "private") ?? "public"
+                  }
+                />
               </li>
             ))}
           </ul>

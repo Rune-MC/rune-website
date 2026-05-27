@@ -23,7 +23,10 @@ interface RuneRow {
 
 async function fetchRecent(limit: number): Promise<RuneRow[]> {
   await connectDb();
-  const runes = await Rune.find({ latestVersionId: { $exists: true } })
+  const runes = await Rune.find({
+    latestVersionId: { $exists: true },
+    visibility: "public",
+  })
     .sort({ updatedAt: -1 })
     .limit(limit)
     .lean();

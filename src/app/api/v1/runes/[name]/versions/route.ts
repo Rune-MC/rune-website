@@ -25,6 +25,11 @@ const params = z.object({
 
 const body = z.object({
   manifest: manifestSchema,
+  /**
+   * Set when first publishing a Rune. Ignored for subsequent versions —
+   * change visibility via PATCH /api/v1/runes/[name]/visibility.
+   */
+  visibility: z.enum(["public", "private"]).optional(),
 });
 
 const SCOPE_PATTERN = /^@([a-z0-9-]+)\/[a-z0-9-]+$/;
@@ -101,6 +106,7 @@ export const POST = route({
         license: body.manifest.metadata?.license,
         ownerKind,
         ownerId,
+        visibility: body.visibility ?? "public",
       });
     }
 

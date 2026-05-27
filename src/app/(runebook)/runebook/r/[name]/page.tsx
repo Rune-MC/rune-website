@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
 import { CapabilityList } from "@/components/runebook/capability-list";
+import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Org } from "@/lib/db/models/org";
 import { Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import { User } from "@/lib/db/models/user";
 import { formatHash } from "@/lib/manifest";
+import { canReadRune } from "@/lib/rune-ownership";
 import { runeNameToUrl, urlToRuneName } from "@/lib/runebook-urls";
 
 interface Params {
@@ -24,6 +26,10 @@ async function loadRune(rawName: string) {
 
   const rune = await Rune.findOne({ name }).lean();
   if (!rune) return null;
+
+  const me = await currentUser();
+  const visible = await canReadRune(me?.doc ?? null, rune);
+  if (!visible) return null;
 
   const versions = await RuneVersion.find({ runeId: rune._id })
     .sort({ publishedAt: -1, createdAt: -1 })
@@ -92,9 +98,16 @@ export default async function RuneDetailPage({
       <p className="mb-3 font-mono text-xs text-muted-foreground">
         runebook · rune
       </p>
-      <h1 className="break-all font-mono text-2xl text-display sm:text-3xl">
-        {rune.name}
-      </h1>
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h1 className="break-all font-mono text-2xl text-display sm:text-3xl">
+          {rune.name}
+        </h1>
+        {rune.visibility === "private" && (
+          <span className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+            private
+          </span>
+        )}
+      </div>
       {rune.description && (
         <p className="mt-4 max-w-prose text-sm text-foreground">
           {rune.description}

@@ -33,7 +33,13 @@ function formatDownloads(n: number): string {
   return `${(n / 1_000_000).toFixed(1)}M`;
 }
 
-export function RuneListItem({ data }: { data: RuneListItemData }) {
+export function RuneListItem({
+  data,
+  visibility,
+}: {
+  data: RuneListItemData;
+  visibility?: "public" | "private";
+}) {
   const caps = data.capabilities ?? [];
   const meta: string[] = [];
   if (data.language) meta.push(data.language);
@@ -56,9 +62,16 @@ export function RuneListItem({ data }: { data: RuneListItemData }) {
         className="group block py-6"
       >
         <div className="flex items-baseline justify-between gap-4">
-          <h3 className="truncate font-mono text-base text-foreground transition-colors group-hover:text-primary-hover">
-            {data.name}
-          </h3>
+          <div className="flex min-w-0 items-baseline gap-2">
+            <h3 className="truncate font-mono text-base text-foreground transition-colors group-hover:text-primary-hover">
+              {data.name}
+            </h3>
+            {visibility === "private" && (
+              <span className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                private
+              </span>
+            )}
+          </div>
           {data.latestVersion && (
             <span className="shrink-0 font-mono text-xs text-muted-foreground">
               v{data.latestVersion}

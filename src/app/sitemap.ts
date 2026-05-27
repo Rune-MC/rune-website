@@ -42,7 +42,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     await connectDb();
-    const runes = await Rune.find({ latestVersionId: { $exists: true } })
+    const runes = await Rune.find({
+      latestVersionId: { $exists: true },
+      visibility: "public",
+    })
       .select({ name: 1, updatedAt: 1 })
       .sort({ updatedAt: -1 })
       .limit(5000)

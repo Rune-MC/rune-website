@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FileTree } from "@/components/runebook/file-tree";
 import { FileViewer } from "@/components/runebook/file-viewer";
+import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
@@ -9,6 +10,7 @@ import { formatBytes } from "@/lib/file-language";
 import { buildTree, findFile, type TreeDir } from "@/lib/file-tree";
 import { type FileEntry, fileEntrySchema, hashHex } from "@/lib/manifest";
 import { fetchManifestJson } from "@/lib/r2/fetch";
+import { canReadRune } from "@/lib/rune-ownership";
 import { runeNameToUrl, urlToRuneName } from "@/lib/runebook-urls";
 
 interface Params {
@@ -35,6 +37,9 @@ async function loadFiles(
   const name = urlToRuneName(rawName).toLowerCase();
   const rune = await Rune.findOne({ name }).lean();
   if (!rune) return null;
+  const me = await currentUser();
+  const visible = await canReadRune(me?.doc ?? null, rune);
+  if (!visible) return null;
   const ver = await RuneVersion.findOne({
     runeId: rune._id,
     version,

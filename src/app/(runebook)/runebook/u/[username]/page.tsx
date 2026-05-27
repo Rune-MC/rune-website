@@ -38,6 +38,7 @@ export default async function UserProfilePage({
     ownerKind: "user",
     ownerId: user._id,
     latestVersionId: { $exists: true },
+    visibility: "public",
   })
     .sort({ updatedAt: -1 })
     .lean();

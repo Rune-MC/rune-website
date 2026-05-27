@@ -8,6 +8,8 @@ import mongoose, {
 export const RUNE_NAME_PATTERN = /^(@[a-z0-9-]+\/)?[a-z0-9-]+$/;
 export const RUNE_OWNER_KINDS = ["user", "org"] as const;
 export type RuneOwnerKind = (typeof RUNE_OWNER_KINDS)[number];
+export const RUNE_VISIBILITIES = ["public", "private"] as const;
+export type RuneVisibility = (typeof RUNE_VISIBILITIES)[number];
 
 const runeSchema = new Schema(
   {
@@ -48,6 +50,19 @@ const runeSchema = new Schema(
      * Runes that want collaborator access.
      */
     maintainerIds: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
+    /**
+     * `public` — anyone can browse and install.
+     * `private` — only the owner (or org members) and platform staff can
+     * see the Rune in listings and fetch its manifest. Underlying blobs
+     * are still served publicly since they're content-addressed and may
+     * be shared with public Runes.
+     */
+    visibility: {
+      type: String,
+      enum: RUNE_VISIBILITIES,
+      default: "public" satisfies RuneVisibility,
+      index: true,
+    },
   },
   {
     timestamps: { createdAt: true, updatedAt: true },

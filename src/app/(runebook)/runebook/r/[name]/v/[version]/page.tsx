@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
 import { CapabilityList } from "@/components/runebook/capability-list";
+import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import { formatHash } from "@/lib/manifest";
+import { canReadRune } from "@/lib/rune-ownership";
 import { urlToRuneName } from "@/lib/runebook-urls";
 
 interface Params {
@@ -21,6 +23,9 @@ async function loadVersion(rawName: string, version: string) {
   const name = urlToRuneName(rawName).toLowerCase();
   const rune = await Rune.findOne({ name }).lean();
   if (!rune) return null;
+  const me = await currentUser();
+  const visible = await canReadRune(me?.doc ?? null, rune);
+  if (!visible) return null;
   const ver = await RuneVersion.findOne({
     runeId: rune._id,
     version,
