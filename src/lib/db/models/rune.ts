@@ -63,6 +63,13 @@ const runeSchema = new Schema(
       default: "public" satisfies RuneVisibility,
       index: true,
     },
+    /**
+     * A library Rune ships code intended to be imported by other Runes;
+     * the host never loads it directly. Set at first publish from the
+     * manifest's `library: true` flag and locked thereafter — a Rune
+     * either is or isn't a library, for the life of its name.
+     */
+    isLibrary: { type: Boolean, default: false, index: true },
   },
   {
     timestamps: { createdAt: true, updatedAt: true },

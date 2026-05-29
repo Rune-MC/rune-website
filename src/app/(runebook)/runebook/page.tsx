@@ -19,6 +19,7 @@ interface RuneRow {
   capabilities: string[];
   totalDownloads: number;
   updatedAt: string | null;
+  isLibrary: boolean;
 }
 
 async function fetchRecent(limit: number): Promise<RuneRow[]> {
@@ -51,6 +52,7 @@ async function fetchRecent(limit: number): Promise<RuneRow[]> {
       capabilities: v?.capabilities ?? [],
       totalDownloads: r.totalDownloads ?? 0,
       updatedAt: r.updatedAt instanceof Date ? r.updatedAt.toISOString() : null,
+      isLibrary: r.isLibrary === true,
     };
   });
 }
@@ -86,7 +88,7 @@ export default async function RunebookLandingPage() {
       ) : (
         <ul className="mt-4 divide-y divide-border">
           {runes.map((r) => (
-            <RuneListItem key={r.name} data={r} />
+            <RuneListItem key={r.name} data={r} isLibrary={r.isLibrary} />
           ))}
         </ul>
       )}

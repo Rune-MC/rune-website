@@ -97,6 +97,7 @@ export default async function UserProfilePage({
                         ? r.updatedAt.toISOString()
                         : null,
                   }}
+                  isLibrary={r.isLibrary === true}
                 />
               );
             })}

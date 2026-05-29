@@ -149,6 +149,7 @@ export default async function OrgProfilePage({
                   visibility={
                     (r.visibility as "public" | "private") ?? "public"
                   }
+                  isLibrary={r.isLibrary === true}
                 />
               );
             })}

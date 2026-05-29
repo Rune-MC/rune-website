@@ -102,6 +102,11 @@ export default async function RuneDetailPage({
         <h1 className="break-all font-mono text-2xl text-display sm:text-3xl">
           {rune.name}
         </h1>
+        {rune.isLibrary && (
+          <span className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary">
+            library
+          </span>
+        )}
         {rune.visibility === "private" && (
           <span className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
             private
@@ -111,6 +116,13 @@ export default async function RuneDetailPage({
       {rune.description && (
         <p className="mt-4 max-w-prose text-sm text-foreground">
           {rune.description}
+        </p>
+      )}
+      {rune.isLibrary && (
+        <p className="mt-4 max-w-prose rounded border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+          <strong className="text-foreground">Library Rune.</strong> Boilerplate
+          code consumed by other Runes — the host never loads it directly.
+          Install it as a dependency of your own Rune and import from it.
         </p>
       )}
 

@@ -68,6 +68,8 @@ export function SearchResults() {
               capabilities: hit.capabilities,
               totalDownloads: hit.total_downloads,
             }}
+            isLibrary={hit.is_library === true}
+            visibility={hit.visibility}
           />
         ))}
       </ul>

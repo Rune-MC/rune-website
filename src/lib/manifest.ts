@@ -43,6 +43,12 @@ export const manifestSchema = z.object({
   language: z.enum(RUNE_LANGUAGES),
   entry: z.string().min(1).max(512),
   files: z.array(fileEntrySchema).min(1).max(10_000),
+  /**
+   * Library Runes are boilerplate / utility code consumed by other Runes.
+   * The host never executes a library directly — it's just installed for
+   * import. Omitted by default so existing manifest hashes stay stable.
+   */
+  library: z.boolean().optional(),
   capabilities: z.array(z.string().min(1).max(120)).default([]),
   dependencies: z.record(z.string(), z.string()).default({}),
   metadata: z

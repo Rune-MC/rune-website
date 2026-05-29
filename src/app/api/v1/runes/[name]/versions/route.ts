@@ -61,6 +61,15 @@ export const POST = route({
       if (!authz.canPublish) {
         throw new Errors.Forbidden(authz.reason ?? "Cannot publish");
       }
+      // Library status is locked once set. Subsequent versions must agree.
+      const manifestLib = body.manifest.library === true;
+      if (rune.isLibrary !== manifestLib) {
+        throw new Errors.Conflict(
+          rune.isLibrary
+            ? `@${rune.name} was published as a library. Subsequent versions must keep \`library = true\` in rune.toml.`
+            : `@${rune.name} was not published as a library. Drop \`library = true\` from rune.toml or publish under a new name.`,
+        );
+      }
     } else {
       // First publish — determine the owner from the scope.
       const scopeMatch = params.name.match(SCOPE_PATTERN);
@@ -107,6 +116,7 @@ export const POST = route({
         ownerKind,
         ownerId,
         visibility: body.visibility ?? "public",
+        isLibrary: body.manifest.library === true,
       });
     }
 

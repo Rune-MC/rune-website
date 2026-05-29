@@ -19,6 +19,8 @@ interface SearchHit {
   capabilities: string[];
   total_downloads: number;
   score: number;
+  is_library: boolean;
+  visibility: "public" | "private";
 }
 
 /**
@@ -115,6 +117,8 @@ export const GET = route({
         total_downloads: r.totalDownloads ?? 0,
         // Mongoose returns score on the doc itself when projected with $meta.
         score: (r as unknown as { score?: number }).score ?? 0,
+        is_library: r.isLibrary === true,
+        visibility: (r.visibility as "public" | "private") ?? "public",
       };
     });
 

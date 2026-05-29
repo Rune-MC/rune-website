@@ -36,9 +36,11 @@ function formatDownloads(n: number): string {
 export function RuneListItem({
   data,
   visibility,
+  isLibrary,
 }: {
   data: RuneListItemData;
   visibility?: "public" | "private";
+  isLibrary?: boolean;
 }) {
   const caps = data.capabilities ?? [];
   const meta: string[] = [];
@@ -66,6 +68,11 @@ export function RuneListItem({
             <h3 className="truncate font-mono text-base text-foreground transition-colors group-hover:text-primary-hover">
               {data.name}
             </h3>
+            {isLibrary && (
+              <span className="shrink-0 rounded border border-primary/40 bg-primary/5 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary">
+                library
+              </span>
+            )}
             {visibility === "private" && (
               <span className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                 private

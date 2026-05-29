@@ -59,6 +59,7 @@ export const GET = route({
         rune.updatedAt instanceof Date ? rune.updatedAt.toISOString() : null,
       owner,
       visibility: rune.visibility ?? "public",
+      is_library: rune.isLibrary === true,
       versions: versions
         .filter((v) => v.status !== "pending")
         .map((v) => ({

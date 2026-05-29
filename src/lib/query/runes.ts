@@ -10,6 +10,8 @@ export interface RuneSearchHit {
   capabilities: string[];
   total_downloads: number;
   score: number;
+  is_library?: boolean;
+  visibility?: "public" | "private";
 }
 
 export interface RuneSearchResponse {
