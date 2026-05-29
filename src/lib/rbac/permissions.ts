@@ -23,6 +23,7 @@ export const ORG_PERMISSIONS = {
   ROLES_WRITE: "org.roles.write",
 
   // Packages
+  PACKAGE_READ: "org.package.read",
   PACKAGE_PUBLISH: "org.package.publish",
   PACKAGE_YANK_OWN: "org.package.yank.own",
   PACKAGE_YANK_ANY: "org.package.yank.any",
@@ -129,6 +130,12 @@ export const ORG_PERMISSION_GROUPS: PermissionGroup[] = [
     description: "Publishing and managing the org's Runes.",
     permissions: [
       {
+        key: ORG_PERMISSIONS.PACKAGE_READ,
+        label: "Read private packages",
+        description:
+          "View and install private Runes owned by this org. Public Runes are visible to everyone regardless of this permission.",
+      },
+      {
         key: ORG_PERMISSIONS.PACKAGE_PUBLISH,
         label: "Publish",
         description: "Publish new versions under @org/*.",
@@ -216,6 +223,7 @@ const MEMBER_PERMS: OrgPermission[] = [
   ORG_PERMISSIONS.SETTINGS_READ,
   ORG_PERMISSIONS.MEMBERS_READ,
   ORG_PERMISSIONS.ROLES_READ,
+  ORG_PERMISSIONS.PACKAGE_READ,
   ORG_PERMISSIONS.PACKAGE_PUBLISH,
   ORG_PERMISSIONS.PACKAGE_YANK_OWN,
 ];
