@@ -29,6 +29,18 @@ export const fileEntrySchema = z.object({
 });
 export type FileEntry = z.infer<typeof fileEntrySchema>;
 
+export function findReadme(files: unknown): FileEntry | undefined {
+  if (!Array.isArray(files)) return undefined;
+  for (const name of ["readme.md", "readme.markdown", "readme"]) {
+    const file = files.find(
+      (entry) =>
+        typeof entry?.path === "string" && entry.path.toLowerCase() === name,
+    );
+    const parsed = fileEntrySchema.safeParse(file);
+    if (parsed.success) return parsed.data;
+  }
+}
+
 const authorSchema = z.object({
   name: z.string().min(1).max(120),
   email: z.string().email().optional(),

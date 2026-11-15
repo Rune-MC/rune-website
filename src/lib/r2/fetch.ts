@@ -18,11 +18,12 @@ export interface BlobFetchResult {
  */
 export async function fetchBlobPreview(
   hashHex: string,
+  maxBytes = PREVIEW_MAX_BYTES,
 ): Promise<BlobFetchResult> {
   const cmd = new GetObjectCommand({
     Bucket: r2Bucket(),
     Key: blobKey(hashHex),
-    Range: `bytes=0-${PREVIEW_MAX_BYTES - 1}`,
+    Range: `bytes=0-${maxBytes - 1}`,
   });
   const response = await r2Client().send(cmd);
   const stream = response.Body;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
 import { CapabilityList } from "@/components/runebook/capability-list";
+import { PackageReadme } from "@/components/runebook/package-readme";
 import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Rune } from "@/lib/db/models/rune";
@@ -105,6 +106,8 @@ export default async function VersionDetailPage({
             />
           </div>
         </article>
+
+        <PackageReadme name={rune.name} version={ver} />
 
         <article className="py-10">
           <div className="flex items-baseline justify-between gap-4">

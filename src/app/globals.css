@@ -1065,6 +1065,76 @@
 .package-sections > article + article {
   border-block-start: 1px solid var(--border);
 }
+.package-readme {
+  margin-block-start: 1.25rem;
+  max-inline-size: 76ch;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.package-readme > * + * {
+  margin-block-start: 1rem;
+}
+.package-readme :is(h3, h4, h5, h6) {
+  font-weight: 650;
+  line-height: 1.35;
+}
+.package-readme h3 {
+  font-size: 1.25rem;
+}
+.package-readme :is(h3, h4, h5, h6):not(:first-child) {
+  margin-block-start: 1.8rem;
+}
+.package-readme a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+.package-readme :is(ol, ul) {
+  padding-inline-start: 1.5rem;
+}
+.package-readme ul {
+  list-style-type: disc;
+}
+.package-readme ol {
+  list-style-type: decimal;
+}
+.package-readme li + li {
+  margin-block-start: 0.3rem;
+}
+.package-readme :not(pre) > code {
+  background: var(--muted);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.3em;
+}
+.package-readme pre {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: var(--muted);
+  padding: 0.9rem 1rem;
+  font-size: 0.875rem;
+  overflow-wrap: normal;
+}
+.package-readme blockquote {
+  border-inline-start: 3px solid var(--border);
+  color: var(--muted-foreground);
+  padding-inline-start: 1rem;
+}
+.package-readme table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.package-readme :is(th, td) {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.7rem;
+  text-align: start;
+  vertical-align: top;
+}
+.package-readme th {
+  background: var(--muted);
+}
 @media (max-width: 51rem) {
   .docs-layout {
     grid-template-columns: 1fr;

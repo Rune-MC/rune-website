@@ -5,6 +5,7 @@ import { connectDb, isDbConfigured } from "@/lib/db";
 import { RUNE_NAME_PATTERN, Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
 import {
+  findReadme,
   formatHash,
   hashHex,
   manifestBytes,
@@ -165,8 +166,13 @@ export const POST = route({
       }),
     );
 
-    const readmeBlobHash = body.manifest.metadata?.readme
-      ? parseHash(body.manifest.metadata.readme)
+    const explicitReadme = body.manifest.metadata?.readme;
+    const readmeFile =
+      (explicitReadme
+        ? body.manifest.files.find((file) => file.hash === explicitReadme)
+        : undefined) ?? findReadme(body.manifest.files);
+    const readmeBlobHash = readmeFile?.size
+      ? parseHash(readmeFile.hash)
       : undefined;
 
     const version = await RuneVersion.create({

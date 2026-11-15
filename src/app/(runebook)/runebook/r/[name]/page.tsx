@@ -5,6 +5,7 @@ import { CodeBlock } from "@/components/code-block";
 import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 import { CapabilityList } from "@/components/runebook/capability-list";
 import { CopyButton } from "@/components/runebook/copy-button";
+import { PackageReadme } from "@/components/runebook/package-readme";
 import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Org } from "@/lib/db/models/org";
@@ -157,6 +158,8 @@ export default async function RuneDetailPage({
             </p>
           </article>
         )}
+
+        {latest && <PackageReadme name={rune.name} version={latest} />}
 
         {latest && (
           <article className="py-10">
