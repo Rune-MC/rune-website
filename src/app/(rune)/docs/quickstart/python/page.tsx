@@ -18,9 +18,10 @@ export default function PythonQuickstart() {
     >
       <Section title="Install the runtime">
         <p>
-          <Link href="/install">Install Rune</Link> and start Paper once.
-          Install Python 3 on the server. Set <code>RUNE_PYTHON</code> to its
-          executable path if the server cannot find Python on its PATH.
+          <Link href="/install">Install the Rune CLI</Link>, then run{" "}
+          <code>rune setup</code> from your Paper server folder and start Paper
+          once. Install Python 3 on the server. Set <code>RUNE_PYTHON</code> to
+          its executable path if the server cannot find Python on its PATH.
         </p>
       </Section>
       <Section title="Create your script">

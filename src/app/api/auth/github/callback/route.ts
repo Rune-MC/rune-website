@@ -4,6 +4,8 @@ import {
   fetchGithubProfile,
   isGithubConfigured,
 } from "@/lib/auth/github";
+import { cliLoginContinuation } from "@/lib/auth/cli-login";
+import { safeReturnPath } from "@/lib/auth/return-path";
 import {
   OAUTH_REDIRECT_COOKIE,
   OAUTH_STATE_COOKIE,
@@ -37,8 +39,9 @@ export async function GET(req: NextRequest) {
   if (!storedState || storedState !== state) {
     return failureRedirect(origin, "state_mismatch");
   }
-  const redirectTarget =
-    req.cookies.get(OAUTH_REDIRECT_COOKIE)?.value ?? "/dashboard";
+  const redirectTarget = safeReturnPath(
+    req.cookies.get(OAUTH_REDIRECT_COOKIE)?.value,
+  );
 
   let profile: Awaited<ReturnType<typeof fetchGithubProfile>>;
   try {
@@ -66,7 +69,11 @@ export async function GET(req: NextRequest) {
   if (!doc) return failureRedirect(origin, "user_upsert_failed");
 
   // Send new users (without a username) through the welcome screen.
-  const finalTarget = doc.username ? redirectTarget : "/dashboard/welcome";
+  const continuation = cliLoginContinuation(redirectTarget);
+  const welcome = continuation
+    ? `/dashboard/welcome?next=${encodeURIComponent(continuation)}`
+    : "/dashboard/welcome";
+  const finalTarget = doc.username ? redirectTarget : welcome;
 
   const res = NextResponse.redirect(new URL(finalTarget, origin));
   res.cookies.delete(OAUTH_STATE_COOKIE);

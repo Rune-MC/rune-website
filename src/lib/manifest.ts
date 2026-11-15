@@ -35,7 +35,14 @@ const authorSchema = z.object({
   github: z.string().max(120).optional(),
 });
 
-const RUNE_LANGUAGES = ["typescript", "wasm", "python", "lua", "rust"] as const;
+export const RUNE_LANGUAGES = [
+  "typescript",
+  "javascript",
+  "wasm",
+  "python",
+  "lua",
+  "rust",
+] as const;
 
 export const manifestSchema = z.object({
   name: runeName,

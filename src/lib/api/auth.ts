@@ -72,7 +72,13 @@ async function resolveCli(req: NextRequest): Promise<AuthContext | null> {
   const token = (await ApiToken.findOne({
     tokenHash,
   })) as ApiTokenDoc | null;
-  if (!token || token.revokedAt) return null;
+  if (
+    !token ||
+    token.revokedAt ||
+    (token.expiresAt && token.expiresAt <= new Date())
+  ) {
+    return null;
+  }
 
   const userDoc = await User.findById(token.userId);
   if (!userDoc) return null;

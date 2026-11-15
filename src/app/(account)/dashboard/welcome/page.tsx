@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { cliLoginContinuation } from "@/lib/auth/cli-login";
+import { safeReturnPath } from "@/lib/auth/return-path";
 import { currentUser } from "@/lib/auth/server";
 import { isDbConfigured } from "@/lib/db";
 import { UsernameForm } from "./username-form";
@@ -8,7 +10,16 @@ export const metadata: Metadata = {
   title: "Welcome",
 };
 
-export default async function WelcomePage() {
+export default async function WelcomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  const { next } = await searchParams;
+  const returnPath =
+    cliLoginContinuation(
+      safeReturnPath(typeof next === "string" ? next : undefined),
+    ) ?? "/dashboard";
   const bridged = await currentUser();
   if (!bridged) {
     if (!isDbConfigured()) {
@@ -34,7 +45,7 @@ export default async function WelcomePage() {
   }
 
   if (bridged.doc.username) {
-    redirect("/dashboard");
+    redirect(returnPath);
   }
 
   return (
@@ -51,7 +62,7 @@ export default async function WelcomePage() {
         Signed in as <code>@{bridged.doc.githubLogin}</code> on GitHub.
       </p>
       <div className="mt-8">
-        <UsernameForm />
+        <UsernameForm next={returnPath} />
       </div>
     </div>
   );

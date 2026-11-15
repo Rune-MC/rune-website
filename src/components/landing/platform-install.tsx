@@ -21,7 +21,7 @@ export function PlatformInstall() {
     >
       <TabsList
         variant="line"
-        aria-label="Server operating system"
+        aria-label="Operating system"
         className="install-tab-list"
       >
         {installCommands.map(({ id, label }) => (

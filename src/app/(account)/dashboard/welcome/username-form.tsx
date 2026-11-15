@@ -7,7 +7,7 @@ import { useClaimUsernameMutation } from "@/lib/query/users";
 
 const USERNAME_PATTERN = /^[a-z0-9-]{3,32}$/;
 
-export function UsernameForm() {
+export function UsernameForm({ next = "/dashboard" }: { next?: string }) {
   const router = useRouter();
   const claim = useClaimUsernameMutation();
   const [username, setUsername] = useState("");
@@ -22,7 +22,7 @@ export function UsernameForm() {
     }
     try {
       await claim.mutateAsync({ username });
-      router.push("/dashboard");
+      router.push(next);
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Unexpected error");

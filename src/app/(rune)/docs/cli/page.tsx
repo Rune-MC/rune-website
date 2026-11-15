@@ -13,24 +13,27 @@ export default function CliPage() {
     <DocsPage
       slug="cli"
       title="CLI."
-      description="The rune CLI handles everything outside the running server: scaffolding a new Rune, packaging it for distribution, publishing to the registry, and installing one onto a server. It reads rune.toml, talks to the Runebook API, and operates against a personal access token you issue from your dashboard."
+      description="Create and package Runes from your terminal. Set up an existing server with the Rune plugin and manage Runebook packages."
     >
       <Section title="Authentication">
         <p>
-          The CLI authenticates to Runebook with a personal access token. Mint
-          one at <a href="/dashboard/tokens">your dashboard</a>, then save it.
+          Run <code>rune login</code> to open Runebook in your desktop browser.
+          On a headless server or over SSH, enter the terminal code at the
+          displayed URL on another device. Add <code>--device</code> to use that
+          flow from a desktop.
         </p>
         <CodeBlock
           lang="shell"
-          code={`rune login                # prompts for the token
-rune login --token rune_pat_...   # non-interactive
-rune logout
-rune whoami               # prints the username the token belongs to`}
+          code={`rune login
+rune login --device
+rune whoami
+rune logout`}
         />
         <p>
-          The token is stored at <code>~/.config/rune/token</code>{" "}
-          (owner-readable only) and sent as{" "}
-          <code>Authorization: Bearer rune_pat_*</code>.
+          For CI, create a personal access token in{" "}
+          <a href="/dashboard/tokens">your dashboard</a> and pass it through{" "}
+          <code>RUNE_TOKEN</code> or <code>rune login --token</code>.
+          Browser-issued credentials expire after 30 days.
         </p>
       </Section>
 
@@ -39,15 +42,18 @@ rune whoami               # prints the username the token belongs to`}
           <p>Scaffold a new Rune project in the current directory.</p>
           <CodeBlock
             lang="shell"
-            code={`rune init                              # uses dir name
-rune init --name hello                  # explicit name
-rune init --language wasm               # default is typescript
-rune init --force                       # overwrite existing files`}
+            code={`rune init hello
+rune init hello-js --language javascript
+rune init hello-py --language python
+cd hello
+rune check
+rune pack`}
           />
           <p>
-            Emits <code>rune.toml</code>, <code>rune.jsonc</code>,{" "}
-            <code>tsconfig.json</code>, <code>package.json</code>, and an{" "}
-            <code>index.ts</code> with a working listener.
+            Creates <code>rune.toml</code>, <code>.runeignore</code>, a README,
+            and a player-join example in <code>src/</code>.{" "}
+            <code>rune check</code> validates your manifest and checks whether
+            the entry point will be packed.
           </p>
         </Sub>
 
@@ -93,10 +99,20 @@ rune publish --registry https://...   # alternate registry`}
       </Section>
 
       <Section title="Server-side commands">
-        <p>
-          These run from inside a Paper server root — <code>plugins/Rune/</code>{" "}
-          needs to be present.
-        </p>
+        <Sub title="rune setup">
+          <p>
+            Install the Rune plugin into an existing Paper server and create its
+            scripts directory. Setup finds the server from your current
+            directory, or you can pass the server folder explicitly.
+          </p>
+          <CodeBlock
+            lang="shell"
+            code={`rune setup
+rune setup "/path/to/paper"
+rune setup --start`}
+          />
+          <p>Paper generates Rune’s config and types when it starts.</p>
+        </Sub>
         <Sub title="rune add">
           <p>
             Install a published Rune into <code>plugins/Rune/scripts/</code>.
@@ -108,7 +124,9 @@ rune publish --registry https://...   # alternate registry`}
 rune add guild-ranks@0.1.0
 rune add @yourname/foo
 rune add guild-ranks --scripts ./plugins/Rune/scripts
-rune add guild-ranks --force                 # overwrite if already installed`}
+rune add guild-ranks --force
+rune list
+rune update`}
           />
         </Sub>
         <Sub title="rune remove">
@@ -143,28 +161,11 @@ rune remove guild-ranks --yes              # skip confirmation`}
             declared capabilities, and current uptime.
           </li>
           <li>
-            <code>/rune new-script --name &lt;name&gt;</code> — scaffold a new
+            <code>/rune new &lt;name&gt; [language]</code> — scaffold a new
             script directly inside the server (convenience equivalent to running{" "}
             <code>rune init</code> from the scripts dir).
           </li>
         </ul>
-      </Section>
-
-      <Section title="rune yank">
-        <p>
-          Soft-delete a published version. Yanked versions remain installable
-          for operators who pinned them, but disappear from the default resolver
-          and show a banner on the detail page.
-        </p>
-        <CodeBlock
-          lang="shell"
-          code={`rune yank @yourname/guild-ranks@0.1.0 --reason "broken on 1.21.4"`}
-        />
-        <p>
-          Use yank when you ship a broken version. Don't use it to un-publish —
-          published is forever. The right move for a bad publish is to yank it
-          and ship a fixed patch version.
-        </p>
       </Section>
     </DocsPage>
   );

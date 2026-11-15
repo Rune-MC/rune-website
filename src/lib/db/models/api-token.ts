@@ -24,6 +24,7 @@ const apiTokenSchema = new Schema(
       enum: API_TOKEN_SCOPES,
     },
     lastUsedAt: Date,
+    expiresAt: Date,
     revokedAt: Date,
   },
   {

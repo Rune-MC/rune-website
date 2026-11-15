@@ -4,14 +4,9 @@ import mongoose, {
   type Model,
   Schema,
 } from "mongoose";
+import { RUNE_LANGUAGES } from "@/lib/manifest";
 
-export const RUNE_LANGUAGES = [
-  "typescript",
-  "wasm",
-  "python",
-  "lua",
-  "rust",
-] as const;
+export { RUNE_LANGUAGES };
 export type RuneLanguage = (typeof RUNE_LANGUAGES)[number];
 
 export const RUNE_VERSION_STATUSES = ["pending", "active", "yanked"] as const;
