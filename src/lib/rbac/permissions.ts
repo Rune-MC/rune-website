@@ -197,6 +197,7 @@ export const PLATFORM_PERMISSIONS = {
   ORGS_READ: "platform.orgs.read",
   ORGS_SUSPEND: "platform.orgs.suspend",
   ORGS_DELETE: "platform.orgs.delete",
+  OFFICIAL_SCOPE_PROVISION: "platform.orgs.provision-official-scope",
 
   // Audit
   AUDIT_READ: "platform.audit.read",
