@@ -26,8 +26,14 @@ export function CopyButton({
     <button
       type="button"
       onClick={copy}
-      aria-label={copied ? "Copied" : "Copy file contents"}
-      className="inline-flex items-center gap-1.5 rounded px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      aria-label={
+        copied
+          ? "Copied"
+          : label === "copy" || label === "Copy"
+            ? "Copy file contents"
+            : label
+      }
+      className="inline-flex min-h-11 items-center gap-1.5 rounded px-2 py-1 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       {copied ? (
         <Check className="size-3" aria-hidden="true" />

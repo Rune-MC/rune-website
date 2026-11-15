@@ -24,7 +24,7 @@ export default function MenusPage() {
           lang="typescript"
           code={`export function openAdminMenu(player: Player): void {
   const gui = rune.gui({
-    title: "<gradient:#9b87f5:#5b3df5>Ward Admin</gradient>",
+    title: "<gradient:#9b87f5:#5b3df5>Guild Ranks Admin</gradient>",
     rows: 3,
   });
 
@@ -88,8 +88,8 @@ const GLASS = () =>
         <p>
           Lists longer than a single inventory want pagination. There's no
           built-in paginator — the pattern is to slice your data into pages and
-          render one at a time. Below is the helper ward uses; it's a stateless
-          function that returns a window into the underlying list.
+          render one at a time. Below is the helper guild-ranks uses; it's a
+          stateless function that returns a window into the underlying list.
         </p>
         <CodeBlock
           lang="typescript"
@@ -124,9 +124,9 @@ export function paginate<T>(all: T[], page: number, size: number): Page<T> {
       <Section title="Chat prompts">
         <p>
           For text input — naming a group, picking a number — chest GUIs don't
-          help. ward uses a chat-prompt pattern: close the inventory, send a
-          question, register a one-shot chat listener, resolve a promise with
-          the typed answer.
+          help. guild-ranks uses a chat-prompt pattern: close the inventory,
+          send a question, register a one-shot chat listener, resolve a promise
+          with the typed answer.
         </p>
         <CodeBlock
           lang="typescript"

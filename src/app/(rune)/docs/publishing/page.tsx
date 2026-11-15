@@ -70,13 +70,13 @@ export default function PublishingPage() {
         </p>
         <ul>
           <li>
-            Unscoped names (<code>ward</code>) are first-come-first-served
-            across the registry.
+            Unscoped names (<code>guild-ranks</code>) are
+            first-come-first-served across the registry.
           </li>
           <li>
-            Scoped names (<code>@yourname/ward</code>) are reserved to whoever
-            owns the <code>@yourname</code> scope, set up by claiming a username
-            during onboarding.
+            Scoped names (<code>@yourname/guild-ranks</code>) are reserved to
+            whoever owns the <code>@yourname</code> scope, set up by claiming a
+            username during onboarding.
           </li>
         </ul>
         <Note variant="warn">
@@ -146,7 +146,7 @@ exclude = [
         </p>
         <CodeBlock
           lang="shell"
-          code={`rune yank @yourname/ward@0.1.0 --reason "broken on 1.21.4"`}
+          code={`rune yank @yourname/guild-ranks@0.1.0 --reason "broken on 1.21.4"`}
         />
       </Section>
 
@@ -154,8 +154,8 @@ exclude = [
         <p>Operators install with one command from a Paper server root:</p>
         <CodeBlock
           lang="shell"
-          code={`rune add ward                # latest stable
-rune add ward@0.1.0          # pin a specific version
+          code={`rune add guild-ranks                # latest stable
+rune add guild-ranks@0.1.0          # pin a specific version
 rune add @scope/foo          # scoped`}
         />
         <p>

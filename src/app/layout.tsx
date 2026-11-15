@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     template: "%s · Rune",
   },
   description:
-    "Write your Paper plugin in TypeScript. In your Paper plugin. Rune embeds language runtimes (V8, Wasm, and more) inside the Paper JVM via a Rust loader on Panama FFM. No sidecar process, no IPC.",
+    "Build Minecraft scripts for Paper in Python, TypeScript, and JavaScript. Install Rune, read the docs, or discover packages on Runebook.",
   openGraph: {
     title: "Rune",
     description:
-      "Polyglot scripting for Paper Minecraft servers, embedded inside the JVM.",
+      "Python, TypeScript, and JavaScript scripting for Paper Minecraft servers.",
     url: "https://runemc.dev",
     siteName: "Rune",
     locale: "en_US",

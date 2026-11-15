@@ -100,8 +100,8 @@ app.start();`}
       <Section title="Authentication">
         <p>
           The HTTP server is just a server — Rune doesn't ship an opinionated
-          auth layer. ward issues bearer tokens from an in-game command and
-          validates them in a middleware-like gateway pattern.
+          auth layer. guild-ranks issues bearer tokens from an in-game command
+          and validates them in a middleware-like gateway pattern.
         </p>
         <CodeBlock
           lang="typescript"
@@ -118,7 +118,7 @@ app.start();`}
 }
 
 // Issued by the in-game command:
-@Command("ward web token")
+@Command("guild-ranks web token")
 export class WardWebToken {
   @Run
   run(ctx: CommandCtx) {
@@ -131,7 +131,7 @@ export class WardWebToken {
   }
 }
 
-app.get("/api/players/:uuid", gate("ward.user.info", async (c, session) => {
+app.get("/api/players/:uuid", gate("guild-ranks.user.info", async (c, session) => {
   // session.uuid is the authed player; c.param("uuid") is the target.
   return fetchPlayer(c.param("uuid")!);
 }));`}

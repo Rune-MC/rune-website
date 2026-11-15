@@ -3,7 +3,7 @@ import { CodeBlock } from "@/components/code-block";
 import { DocsPage, Note, Section } from "@/components/docs/docs-page";
 
 export const metadata: Metadata = {
-  title: "Quickstart",
+  title: "TypeScript and JavaScript quickstart",
   description:
     "From an empty Paper server to a Rune that announces every player join, in under five minutes.",
 };
@@ -12,16 +12,21 @@ export default function Quickstart() {
   return (
     <DocsPage
       slug="quickstart"
-      title="Quickstart."
+      title="TypeScript and JavaScript quickstart"
       description="You'll install Rune onto a Paper server, scaffold a new script, write a join announcer, and reload it without restarting the server."
     >
-      <Section title="Prerequisites">
+      <Section id="node-runtime" title="Prerequisites">
+        <p>
+          For Python, follow the{" "}
+          <a href="/docs/quickstart/python">Python quickstart</a>.
+        </p>
         <ul>
-          <li>Paper 1.21 or newer on Java 21+.</li>
+          <li>Paper 1.21.4 on Java 25.</li>
           <li>
             The <code>rune</code> CLI on your PATH (
-            <code>curl -fsSL runemc.dev/install.sh | bash</code> on macOS or
-            Linux; <code>irm runemc.dev/install.ps1 | iex</code> on Windows).
+            <code>curl -fsSL https://runemc.dev/install.sh | bash</code> on
+            macOS or Linux;{" "}
+            <code>irm https://runemc.dev/install.ps1 | iex</code> on Windows).
           </li>
         </ul>
       </Section>
@@ -44,21 +49,21 @@ java -Xmx2G -jar paper.jar nogui   # let it boot once, then stop`}
       <Section title="2. Scaffold a script">
         <p>
           From inside the scripts directory, ask the CLI to scaffold a new Rune.
-          It writes a working <code>index.ts</code>, a <code>rune.toml</code>,
-          and a per-script <code>rune.jsonc</code>.
+          It writes <code>src/index.ts</code> and a <code>rune.toml</code>
+          declaring the entry point.
         </p>
         <CodeBlock
           lang="shell"
           code={`cd plugins/Rune/scripts
-rune init --name hello --language typescript
+rune init hello
 cd hello`}
         />
       </Section>
 
       <Section title="3. Write a join announcer">
         <p>
-          Open <code>index.ts</code>. The scaffold gives you a working example;
-          replace it with this:
+          Open <code>src/index.ts</code>. The scaffold gives you a working
+          example; replace it with this:
         </p>
         <CodeBlock
           lang="typescript"
@@ -66,8 +71,10 @@ cd hello`}
 export class HelloListeners {
   @EventHandler(Events.PlayerJoinEvent)
   onJoin(e: PlayerJoinEvent) {
-    const name = e.getPlayer().getName();
-    rune.broadcast(\`<gradient:#9b87f5:#5b3df5>\${name}</gradient> joined.\`);
+    const player = e.getPlayer();
+    rune.adventure.broadcast(rune.mm("<gold>Welcome, <name>!", {
+      name: player.getName(),
+    }));
   }
 }`}
         />
@@ -76,9 +83,11 @@ export class HelloListeners {
           to register every <code>@EventHandler</code> method on this class as a
           Bukkit listener. <code>PlayerJoinEvent</code> is a real Bukkit type —
           your IDE autocompletes against the classes that actually exist on this
-          server, including any plugins you've declared.{" "}
-          <code>rune.broadcast</code> takes a MiniMessage template; the gradient
-          tag renders inline in chat.
+          server, including any plugins you've declared. <code>rune.mm</code>{" "}
+          creates the formatted component and{" "}
+          <code>rune.adventure.broadcast</code> sends it to the server. The{" "}
+          <a href="/docs/adventure">Adventure guide</a> covers safe
+          interpolation, titles, action bars, and sounds.
         </p>
       </Section>
 
@@ -108,6 +117,19 @@ export class HelloListeners {
           <a href="/docs/http">HTTP servers</a> — all in the same process as the
           server.
         </p>
+      </Section>
+      <Section title="Use JavaScript">
+        <p>
+          For a plain JavaScript Rune, create a file named <code>hello.js</code>{" "}
+          in <code>plugins/Rune/scripts/</code>. The Node.js runtime exposes the
+          same Rune APIs to JavaScript. Reload from the server console.
+        </p>
+        <CodeBlock
+          lang="javascript"
+          code={`rune.on("PlayerJoinEvent", ({ player }) => {
+  rune.broadcast("Welcome, " + player.getName() + "!");
+});`}
+        />
       </Section>
     </DocsPage>
   );

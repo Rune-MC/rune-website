@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { SiteFooter } from "@/components/marketing/site-footer";
+import { SiteHeader } from "@/components/marketing/site-header";
 
 export default function AccountLayout({
   children,
@@ -7,20 +7,12 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-full flex-col">
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link
-            href="/"
-            className="font-mono text-sm tracking-tight text-foreground"
-            aria-label="Rune"
-          >
-            rune
-          </Link>
-          <ThemeToggle />
-        </div>
-      </header>
-      <main className="flex flex-1 flex-col">{children}</main>
-    </div>
+    <>
+      <SiteHeader />
+      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
+        {children}
+      </main>
+      <SiteFooter />
+    </>
   );
 }

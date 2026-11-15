@@ -1,73 +1,18 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { SearchBar } from "./search-bar";
 
-interface Props {
-  userLabel: string | null;
-}
-
-export function RunebookHeader({ userLabel }: Props) {
+export function RunebookHeader({ userLabel }: { userLabel: string | null }) {
   return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4 md:flex-row md:items-center md:gap-6">
-        <div className="flex items-baseline gap-3">
-          <Link
-            href="/"
-            className="font-mono text-sm tracking-tight text-foreground"
-            aria-label="Rune"
-          >
-            rune
-          </Link>
-          <span aria-hidden="true" className="text-muted-foreground">
-            /
-          </span>
-          <Link
-            href="/runebook"
-            className="font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            runebook
-          </Link>
-        </div>
-        <div className="md:flex-1">
-          <Suspense fallback={<SearchBarFallback />}>
-            <SearchBar variant="header" />
-          </Suspense>
-        </div>
-        <nav className="flex items-center gap-6 font-mono text-sm">
-          <Link
-            href="/runebook/publish"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            publish
-          </Link>
-          {userLabel ? (
-            <Link
-              href="/dashboard"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {userLabel}
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              sign in
-            </Link>
-          )}
-          <ThemeToggle />
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-function SearchBarFallback() {
-  return (
-    <div
-      aria-hidden="true"
-      className="h-9 w-full max-w-md rounded border border-border bg-background"
-    />
+    <div className="registry-toolbar">
+      <nav
+        className="site-shell registry-toolbar-links"
+        aria-label="Runebook navigation"
+      >
+        <Link href="/runebook">Browse packages</Link>
+        <Link href="/runebook/publish">Publish a Rune</Link>
+        <Link href={userLabel ? "/dashboard" : "/login"}>
+          {userLabel ?? "Sign in"}
+        </Link>
+      </nav>
+    </div>
   );
 }

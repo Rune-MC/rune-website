@@ -25,7 +25,7 @@ export default function PersistencePage() {
         </p>
         <CodeBlock
           lang="typescript"
-          code={`// ward primes its group cache from Mongo on every load.
+          code={`// guild-ranks primes its group cache from Mongo on every load.
 let groupCache: GroupDoc[] = [];
 
 export async function refreshGroups() {
@@ -37,9 +37,9 @@ export function cachedGroupNames(): string[] {
 }`}
         />
         <p>
-          The cache is in-memory, but ward refreshes it from Mongo at every
-          script load, and after every mutation. Reload wipes the cache; the
-          prime call rebuilds it. The user never sees the gap.
+          The cache is in-memory, but guild-ranks refreshes it from Mongo at
+          every script load, and after every mutation. Reload wipes the cache;
+          the prime call rebuilds it. The user never sees the gap.
         </p>
       </Section>
 
@@ -91,8 +91,8 @@ export class GreetOnce {
             <code>rune.store</code> is sized for &quot;config plus a handful of
             records per player.&quot; If the file would exceed a few megabytes,
             or if you need range queries or secondary indexes, graduate to a
-            real database. ward keeps transient promotion state in the store and
-            offloads everything else to Mongo.
+            real database. guild-ranks keeps transient promotion state in the
+            store and offloads everything else to Mongo.
           </p>
         </Sub>
       </Section>
@@ -100,7 +100,7 @@ export class GreetOnce {
       <Section title="External: full Node ecosystem">
         <p>
           Because Rune embeds Node, you have npm. MongoDB is the well-trodden
-          path — ward uses Mongoose with decorator-defined schemas — but
+          path — guild-ranks uses Mongoose with decorator-defined schemas — but
           anything you can talk to from Node is fair game: Postgres via{" "}
           <code>pg</code>, SQLite via <code>better-sqlite3</code>, Redis,
           S3-compatible blob storage, an external HTTP API.
@@ -137,9 +137,9 @@ export function ensureDBConnection() {
         </Sub>
         <Sub title="Schema as a decorator">
           <p>
-            ward defines its Mongoose models with a small in-house ODM decorator
-            layer. The pattern keeps domain types and persistence schemas
-            co-located.
+            guild-ranks defines its Mongoose models with a small in-house ODM
+            decorator layer. The pattern keeps domain types and persistence
+            schemas co-located.
           </p>
           <CodeBlock
             lang="typescript"

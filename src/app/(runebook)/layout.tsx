@@ -1,4 +1,5 @@
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { SiteHeader } from "@/components/marketing/site-header";
 import { RunebookHeader } from "@/components/runebook/runebook-header";
 import { currentUser } from "@/lib/auth/server";
 
@@ -14,8 +15,11 @@ export default async function RunebookLayout({
 
   return (
     <>
+      <SiteHeader />
       <RunebookHeader userLabel={userLabel} />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" tabIndex={-1} className="flex-1">
+        {children}
+      </main>
       <SiteFooter />
     </>
   );

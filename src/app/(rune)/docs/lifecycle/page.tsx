@@ -101,8 +101,8 @@ export default function LifecyclePage() {
         <p>
           The canonical reload-safe pattern is &quot;register at top level, do
           work in handlers, persist through rune.store or an external
-          system.&quot; Below is the lifecycle entry from ward — every method is
-          short and side-effect-light because the containing class is
+          system.&quot; Below is the lifecycle entry from guild-ranks — every
+          method is short and side-effect-light because the containing class is
           constructed fresh on every reload.
         </p>
         <CodeBlock
@@ -114,7 +114,7 @@ export class WardLifecycle {
     try {
       await applyToPlayer(e.getPlayer());  // reads from Mongo, attaches perms
     } catch (err) {
-      console.error("[ward] join apply failed:", err);
+      console.error("[guild-ranks] join apply failed:", err);
     }
   }
 

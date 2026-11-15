@@ -82,19 +82,19 @@ export default function TypesPage() {
 
       <Section title="Author-owned types.d.ts">
         <p>
-          If your Rune exposes its own globals (ward exposes{" "}
-          <code>ward.registerTransaction(...)</code> on the global scope),
+          If your Rune exposes its own globals (guild-ranks exposes{" "}
+          <code>guildRanks.registerTransaction(...)</code> on the global scope),
           declare them in a <code>types.d.ts</code> at your project root.
           TypeScript will merge them with the host-generated declarations.
         </p>
         <CodeBlock
           lang="typescript"
-          code={`// ward/types.d.ts
+          code={`// guild-ranks/types.d.ts
 declare global {
-  const ward: WardApi;
+  const guildRanks: GuildRanksApi;
 }
 
-interface WardApi {
+interface GuildRanksApi {
   registerTransaction<A extends TransactionArgs>(
     handler: string,
     impl: TransactionHandler<A>,

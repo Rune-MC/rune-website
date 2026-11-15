@@ -61,8 +61,7 @@ export default function OgImage() {
             margin: 0,
           }}
         >
-          Polyglot scripting for Paper Minecraft servers, embedded inside the
-          JVM.
+          Script your Paper Minecraft server in the language you know.
         </p>
       </div>
 
@@ -75,7 +74,7 @@ export default function OgImage() {
           color: "#7a6a5c",
         }}
       >
-        <span>typescript · wasm · python · lua · rust</span>
+        <span>Python · TypeScript · JavaScript</span>
         <span>runemc.dev/install</span>
       </div>
     </div>,

@@ -1,15 +1,12 @@
 export const siteConfig = {
   name: "Rune",
-  version: "1.0.0",
   description:
-    "Polyglot scripting for Paper Minecraft servers, embedded inside the JVM.",
+    "Python, TypeScript, and JavaScript scripting for Paper Minecraft servers.",
   url: "https://runemc.dev",
   links: {
     docs: "/docs",
     install: "/install",
     runebook: "/runebook",
-    changelog: "/changelog",
-    about: "/about",
     github:
       process.env.NEXT_PUBLIC_REPO_URL ?? "https://github.com/rune-mc/rune",
   },
@@ -35,5 +32,3 @@ export const installCommands = [
 ] as const;
 
 export type PlatformId = (typeof installCommands)[number]["id"];
-
-export const commitSha = process.env.NEXT_PUBLIC_COMMIT_SHA ?? "dev";

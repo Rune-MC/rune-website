@@ -11,7 +11,8 @@ export function CapabilityList({ capabilities }: Props) {
   if (capabilities.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No host capabilities declared. This Rune runs in a sandboxed isolate.
+        No capabilities declared by the author. Rune scripts run with server
+        access.
       </p>
     );
   }

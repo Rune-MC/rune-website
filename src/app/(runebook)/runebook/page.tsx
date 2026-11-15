@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { RuneListItem } from "@/components/runebook/rune-list-item";
+import { SearchBar } from "@/components/runebook/search-bar";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Rune } from "@/lib/db/models/rune";
 import { RuneVersion } from "@/lib/db/models/rune-version";
@@ -66,24 +69,13 @@ export default async function RunebookLandingPage() {
 
   return (
     <Shell>
-      <h2 className="font-mono text-xs text-muted-foreground">
-        recently published
-      </h2>
+      <h2 className="registry-section-title">Recently published</h2>
       {runes.length === 0 ? (
-        <div className="mt-6 rounded border border-dashed border-border px-6 py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            No Runes published yet.
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Be the first.{" "}
-            <a
-              href="/runebook/publish"
-              className="text-primary transition-colors hover:text-primary-hover"
-            >
-              publish a Rune
-            </a>
-            .
-          </p>
+        <div className="registry-empty">
+          <p>There are no public packages to browse yet.</p>
+          <Link href="/runebook/publish" className="site-text-link">
+            Publish a Rune <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </div>
       ) : (
         <ul className="mt-4 divide-y divide-border">
@@ -104,16 +96,16 @@ function Shell({
   empty?: string;
 }) {
   return (
-    <section className="mx-auto max-w-4xl px-6 pt-12 pb-24 sm:pt-16 sm:pb-32">
-      <p className="mb-6 font-mono text-xs text-muted-foreground">runebook</p>
-      <h1 className="text-3xl font-medium tracking-tight text-display sm:text-4xl">
-        Browse Runes.
-      </h1>
-      <p className="mt-3 max-w-prose text-sm text-foreground">
-        Every Rune ever published, content-addressed and capability-declared.
-        Pick one, read the manifest, decide whether to install it.
-      </p>
-      <div className="mt-16">
+    <section className="site-shell inner-page registry-width">
+      <div className="registry-lead">
+        <h1 className="page-heading">Runebook</h1>
+        <p className="page-intro">
+          Find scripts and libraries for Paper. Review their source and declared
+          capabilities before you install a pinned version.
+        </p>
+        <SearchBar />
+      </div>
+      <div className="registry-list">
         {empty ? (
           <div className="rounded border border-dashed border-border px-6 py-12 text-center">
             <p className="text-sm text-muted-foreground">{empty}</p>
@@ -121,6 +113,16 @@ function Shell({
         ) : (
           children
         )}
+      </div>
+      <div className="registry-starter">
+        <h2>Build on the Sprint Arena example</h2>
+        <p>
+          See how a race, a rewards Rune, and an operator dashboard work
+          together.
+        </p>
+        <Link href="/docs/extensions" className="site-text-link">
+          Read the extensions guide <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </div>
     </section>
   );

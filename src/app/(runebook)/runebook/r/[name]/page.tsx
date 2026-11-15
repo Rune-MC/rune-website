@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CodeBlock } from "@/components/code-block";
+import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 import { CapabilityList } from "@/components/runebook/capability-list";
+import { CopyButton } from "@/components/runebook/copy-button";
 import { currentUser } from "@/lib/auth/server";
 import { connectDb, isDbConfigured } from "@/lib/db";
 import { Org } from "@/lib/db/models/org";
@@ -94,14 +96,15 @@ export default async function RuneDetailPage({
   const visibleVersions = versions.filter((v) => v.status !== "pending");
 
   return (
-    <section className="mx-auto max-w-4xl px-6 pt-12 pb-24 sm:pt-16 sm:pb-32">
-      <p className="mb-3 font-mono text-xs text-muted-foreground">
-        runebook · rune
-      </p>
+    <section className="site-shell inner-page registry-width">
+      <Breadcrumbs
+        items={[
+          { label: "Runebook", href: "/runebook" },
+          { label: rune.name, href: `/runebook/r/${runeNameToUrl(rune.name)}` },
+        ]}
+      />
       <div className="flex flex-wrap items-baseline gap-3">
-        <h1 className="break-all font-mono text-2xl text-display sm:text-3xl">
-          {rune.name}
-        </h1>
+        <h1 className="page-heading package-heading">{rune.name}</h1>
         {rune.isLibrary && (
           <span className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-primary">
             library
@@ -113,11 +116,7 @@ export default async function RuneDetailPage({
           </span>
         )}
       </div>
-      {rune.description && (
-        <p className="mt-4 max-w-prose text-sm text-foreground">
-          {rune.description}
-        </p>
-      )}
+      {rune.description && <p className="page-intro">{rune.description}</p>}
       {rune.isLibrary && (
         <p className="mt-4 max-w-prose rounded border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
           <strong className="text-foreground">Library Rune.</strong> Boilerplate
@@ -126,13 +125,11 @@ export default async function RuneDetailPage({
         </p>
       )}
 
-      <div className="mt-12 divide-y divide-border">
+      <div className="package-sections">
         {latest && (
-          <article className="py-10">
+          <article className="package-install">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="font-mono text-xs text-muted-foreground">
-                install
-              </h2>
+              <h2 className="registry-section-title">Install this version</h2>
               <span className="font-mono text-xs text-muted-foreground">
                 v{latest.version}
               </span>
@@ -143,8 +140,20 @@ export default async function RuneDetailPage({
                 lang="shell"
               />
             </div>
-            <p className="mt-3 truncate font-mono text-xs text-muted-foreground">
-              manifest hash: <code>{formatHash(latest.manifestHash)}</code>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2">
+              <CopyButton
+                value={`rune add ${rune.name}@${latest.version}`}
+                label="Copy install command"
+              />
+              <Link
+                href={`/runebook/r/${runeNameToUrl(rune.name)}/v/${latest.version}/files`}
+                className="site-text-link"
+              >
+                Browse source
+              </Link>
+            </div>
+            <p className="mt-3 break-all font-mono text-xs text-muted-foreground">
+              Manifest hash <code>{formatHash(latest.manifestHash)}</code>
             </p>
           </article>
         )}
@@ -152,16 +161,14 @@ export default async function RuneDetailPage({
         {latest && (
           <article className="py-10">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="font-mono text-xs text-muted-foreground">
-                capabilities
-              </h2>
+              <h2 className="registry-section-title">Declared capabilities</h2>
               <span className="font-mono text-xs text-muted-foreground">
                 {latest.capabilities.length} declared
               </span>
             </div>
             <p className="mt-3 max-w-prose text-sm text-foreground">
-              These are the host privileges this Rune asks for. Operators should
-              review the list before installing on a production server.
+              The author declares these capabilities as a guide. Rune scripts
+              run with server access.
             </p>
             <div className="mt-6">
               <CapabilityList capabilities={latest.capabilities} />
@@ -170,7 +177,7 @@ export default async function RuneDetailPage({
         )}
 
         <article className="py-10">
-          <h2 className="font-mono text-xs text-muted-foreground">versions</h2>
+          <h2 className="registry-section-title">Versions</h2>
           {visibleVersions.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
               No versions published yet.
@@ -212,7 +219,7 @@ export default async function RuneDetailPage({
         </article>
 
         <article className="py-10">
-          <h2 className="font-mono text-xs text-muted-foreground">metadata</h2>
+          <h2 className="registry-section-title">Package details</h2>
           <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             {latest?.language && (
               <MetaRow label="language" value={latest.language} />

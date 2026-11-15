@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CodeBlock } from "@/components/code-block";
+import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Publish",
@@ -8,14 +9,15 @@ export const metadata: Metadata = {
 
 export default function PublishDocsPage() {
   return (
-    <section className="mx-auto max-w-3xl px-6 pt-12 pb-24 sm:pt-16 sm:pb-32">
-      <p className="mb-6 font-mono text-xs text-muted-foreground">
-        runebook · publish
-      </p>
-      <h1 className="text-3xl font-medium tracking-tight text-display sm:text-4xl">
-        Publish a Rune.
-      </h1>
-      <p className="mt-4 max-w-prose text-sm text-foreground">
+    <section className="site-shell inner-page registry-width">
+      <Breadcrumbs
+        items={[
+          { label: "Runebook", href: "/runebook" },
+          { label: "Publish", href: "/runebook/publish" },
+        ]}
+      />
+      <h1 className="page-heading">Publish a Rune</h1>
+      <p className="page-intro">
         Runes are published from the CLI. The website verifies the manifest,
         deduplicates blobs against existing storage, and serves them. You
         authenticate with a personal access token from{" "}
@@ -37,7 +39,7 @@ export default function PublishDocsPage() {
             Create a CLI token in the dashboard, then save it on your machine:
           </p>
           <div className="mt-4">
-            <CodeBlock code="rune auth login" lang="shell" />
+            <CodeBlock code="rune login" lang="shell" />
           </div>
           <p className="mt-3 max-w-prose text-sm text-foreground">
             The token is stored under <code>~/.config/rune/token</code> and sent
@@ -54,9 +56,9 @@ export default function PublishDocsPage() {
             <CodeBlock code="rune publish" lang="shell" />
           </div>
           <p className="mt-3 max-w-prose text-sm text-foreground">
-            The CLI resolves your file list, runs the esbuild publish preset,
-            computes per-file sha256 hashes, and builds the canonical manifest.
-            Identical content always produces the same manifest hash.
+            The CLI resolves your file list, computes SHA-256 hashes for each
+            file, and builds the canonical manifest. Identical content always
+            produces the same manifest hash.
           </p>
         </article>
 

@@ -61,7 +61,7 @@ rune init --force                       # overwrite existing files`}
             lang="shell"
             code={`rune pack                          # writes to ./dist/
 rune pack --out ./build            # custom output dir
-rune pack --dir ./scripts/ward     # pack a different project`}
+rune pack --dir ./scripts/guild-ranks     # pack a different project`}
           />
           <p>
             The archive is content-addressed — pack the same source twice and
@@ -104,11 +104,11 @@ rune publish --registry https://...   # alternate registry`}
           </p>
           <CodeBlock
             lang="shell"
-            code={`rune add ward
-rune add ward@0.1.0
+            code={`rune add guild-ranks
+rune add guild-ranks@0.1.0
 rune add @yourname/foo
-rune add ward --scripts ./plugins/Rune/scripts
-rune add ward --force                 # overwrite if already installed`}
+rune add guild-ranks --scripts ./plugins/Rune/scripts
+rune add guild-ranks --force                 # overwrite if already installed`}
           />
         </Sub>
         <Sub title="rune remove">
@@ -118,8 +118,8 @@ rune add ward --force                 # overwrite if already installed`}
           </p>
           <CodeBlock
             lang="shell"
-            code={`rune remove ward
-rune remove ward --yes              # skip confirmation`}
+            code={`rune remove guild-ranks
+rune remove guild-ranks --yes              # skip confirmation`}
           />
         </Sub>
       </Section>
@@ -158,7 +158,7 @@ rune remove ward --yes              # skip confirmation`}
         </p>
         <CodeBlock
           lang="shell"
-          code={`rune yank @yourname/ward@0.1.0 --reason "broken on 1.21.4"`}
+          code={`rune yank @yourname/guild-ranks@0.1.0 --reason "broken on 1.21.4"`}
         />
         <p>
           Use yank when you ship a broken version. Don't use it to un-publish —

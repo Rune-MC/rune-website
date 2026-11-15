@@ -1,50 +1,69 @@
 "use client";
 
+import { Code2, Terminal } from "lucide-react";
+import { CopyButton } from "@/components/runebook/copy-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface MatrixTab {
   value: string;
   label: string;
-  badge?: string;
+  file: string;
+  code: string;
   html: string;
 }
 
-interface Props {
+export function LanguageMatrixTabs({
+  tabs,
+  defaultValue,
+}: {
   tabs: MatrixTab[];
   defaultValue: string;
-}
-
-export function LanguageMatrixTabs({ tabs, defaultValue }: Props) {
+}) {
   return (
-    <Tabs defaultValue={defaultValue} className="w-full">
-      <TabsList
-        variant="line"
-        className="h-auto w-full justify-start gap-4 rounded-none border-b border-border bg-transparent p-0"
-      >
+    <div className="runtime-editor">
+      <div className="runtime-editor-caption">
+        <Code2 size={16} aria-hidden="true" />
+        Player join example
+      </div>
+      <Tabs defaultValue={defaultValue} className="runtime-editor-tabs">
+        <TabsList
+          variant="line"
+          aria-label="Example language"
+          className="runtime-editor-tab-list"
+        >
+          {tabs.map(({ value, label }) => (
+            <TabsTrigger
+              key={value}
+              value={value}
+              className="runtime-editor-tab"
+            >
+              {label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
         {tabs.map((tab) => (
-          <TabsTrigger
+          <TabsContent
             key={tab.value}
             value={tab.value}
-            className="font-mono text-xs"
+            className="runtime-editor-content"
           >
-            {tab.label}
-            {tab.badge && (
-              <span className="ml-1.5 text-[10px] text-muted-foreground">
-                {tab.badge}
-              </span>
-            )}
-          </TabsTrigger>
+            <div className="runtime-editor-file">
+              <span>{tab.file}</span>
+              <CopyButton value={tab.code} label="Copy" />
+            </div>
+            <div
+              className="rune-code-block runtime-editor-code"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: Shiki escapes the source.
+              dangerouslySetInnerHTML={{ __html: tab.html }}
+            />
+          </TabsContent>
         ))}
-      </TabsList>
-      {tabs.map((tab) => (
-        <TabsContent key={tab.value} value={tab.value} className="mt-4">
-          <div
-            className="rune-code-block overflow-x-auto rounded border border-border"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: shiki output is safe HTML
-            dangerouslySetInnerHTML={{ __html: tab.html }}
-          />
-        </TabsContent>
-      ))}
-    </Tabs>
+      </Tabs>
+      <div className="runtime-editor-output">
+        <Terminal size={16} aria-hidden="true" />
+        <span>Server chat</span>
+        <code>Welcome, Alex!</code>
+      </div>
+    </div>
   );
 }

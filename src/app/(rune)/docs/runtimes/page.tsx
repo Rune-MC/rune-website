@@ -1,91 +1,84 @@
 import type { Metadata } from "next";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { CodeBlock } from "@/components/code-block";
-import { DocsPage, Note, Section } from "@/components/docs/docs-page";
+import { DocsPage, Section } from "@/components/docs/docs-page";
 
 export const metadata: Metadata = {
   title: "Runtimes",
   description:
-    "Rune is a polyglot platform with a single host API. Today TypeScript ships; the rest is grammar, not architecture.",
+    "Compare Python, TypeScript, and JavaScript on your Paper server.",
 };
 
 export default function RuntimesPage() {
   return (
     <DocsPage
       slug="runtimes"
-      title="Runtimes."
-      description="Rune separates the language from the API. The host API — the surface your Rune writes against — is defined once and lives in Rust. Each language runtime is a backend that implements that contract, so 'add a language' means 'wire a new backend', not 'rewrite the platform'."
+      title="Choose a runtime"
+      description="Rune loads scripts from one Paper server directory. Choose the language and host features your script needs."
     >
-      <Section title="Today: TypeScript">
+      <Section title="Language support">
+        <div className="doc-start-grid">
+          <Link
+            className="doc-start-link no-prose"
+            href="/docs/quickstart/python"
+          >
+            <strong>Python</strong>
+            <span>
+              CPython worker with event snapshots, commands, async handlers,
+              logging, and broadcasts.
+            </span>
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+          <Link className="doc-start-link no-prose" href="/docs/quickstart">
+            <strong>TypeScript and JavaScript</strong>
+            <span>
+              Embedded Node.js with live Bukkit references, Adventure, npm
+              libraries, and inter-Rune services.
+            </span>
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        </div>
+      </Section>
+      <Section title="Python on CPython">
         <p>
-          The Node.js backend is the only runtime currently wired. It embeds{" "}
-          <code>libnode</code> (V8 + Node) inside the Paper JVM by way of the
-          Rust loader, which uses Panama FFM to keep both sides in the same
-          address space. Your script runs in a real Node environment —{" "}
-          <code>fs</code>, <code>http</code>, <code>process</code>, and the npm
-          ecosystem are all available — but the upcalls to Bukkit don't go over
-          a socket. They're direct synchronous calls through V8 → Rust → JVM.
+          Install Python 3 on the server. Set <code>RUNE_PYTHON</code> to an
+          absolute interpreter path if you use a separate environment. Each Rune
+          receives event and command snapshots asynchronously.
+        </p>
+        <CodeBlock
+          lang="python"
+          code={`from rune import broadcast, on
+
+@on("PlayerJoinEvent")
+def welcome(event):
+    broadcast(f"Welcome, {event['player']['name']}!")`}
+        />
+        <p>
+          Python handlers react to events after dispatch. Use the Node.js
+          runtime when a handler must modify or cancel a live Bukkit event
+          inline.
+        </p>
+      </Section>
+      <Section title="TypeScript and JavaScript on Node.js">
+        <p>
+          Rune embeds <code>libnode</code> in the Paper JVM. Scripts can call
+          live Paper objects through the native bridge. TypeScript can use
+          generated classpath types and decorators.
         </p>
         <CodeBlock
           lang="typescript"
-          code={`// Plain Node-side work happens normally.
-import fs from "node:fs";
-import { z } from "zod";
-
-const envSchema = z.object({ DATABASE_URI: z.string() });
-const env = envSchema.parse(loadEnvFile());
-
-// Bukkit work hits the JVM through FFM.
-@Listener
-export class Pulse {
-  @EventHandler(Events.PlayerJoinEvent)
-  onJoin(e: PlayerJoinEvent) {
-    const player = e.getPlayer();        // live ref, not a snapshot
-    rune.runOnMain(() => {                // schedule on the main thread
-      player.sendMessage("welcome.");
-    });
-  }
-}`}
+          code={`rune.on(Events.PlayerJoinEvent, (event) => {
+  const player = event.getPlayer();
+  rune.adventure.send(player, rune.adventure.text("Welcome!", "gold"));
+});`}
         />
-      </Section>
-
-      <Section title="Wasm (wired, not yet exposed)">
         <p>
-          Wasmtime is included as a second runtime backend. The plumbing works —
-          a script declared with <code>language = &quot;wasm&quot;</code> in{" "}
-          <code>rune.toml</code> routes to the Wasm backend instead of Node —
-          but the host bindings exposed to Wasm guests are still being designed.
-          The published Wasm interface lives in <code>wit/</code> in the Rune
-          repo and uses the Component Model. Treat this as preview surface; the
-          WIT will move before 1.0.
+          Use the{" "}
+          <Link href="/docs/adventure">Adventure and primitives guide</Link> for
+          chat, sounds, titles, common Paper classes, and safe text
+          interpolation.
         </p>
-      </Section>
-
-      <Section title="Planned: Python, Lua, Rust → Wasm">
-        <p>
-          The roadmap covers three more guests. Python and Lua get native
-          embeddings (CPython and LuaJIT respectively, both via FFM, same
-          pattern as Node). Rust gets the easier path: you compile to Wasm and
-          the existing Wasmtime runtime hosts it. The host API is
-          language-agnostic by design; what your Rune sees is the same across
-          guests.
-        </p>
-      </Section>
-
-      <Section title="How a language is added">
-        <p>
-          Each backend implements a single trait, <code>LanguageRuntime</code>,
-          in <code>crates/rune-host-api</code>. The trait says: given a path to
-          a script, load it; given a query callback, register it; given a reload
-          signal, tear down and rebuild. Everything else — event dispatch,
-          command registration, store persistence — is host-side machinery
-          routed back to the guest via callbacks. New backends register
-          themselves in the loader; nothing in the Paper plugin changes.
-        </p>
-        <Note>
-          This is why the platform can promise &quot;same API across
-          languages.&quot; The decorators and globals you write against aren't
-          TypeScript features — they're a contract any backend can materialize.
-        </Note>
       </Section>
     </DocsPage>
   );

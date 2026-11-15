@@ -89,22 +89,22 @@ export class Hello {
     .filter((name) => name.startsWith(partial.toLowerCase()));
 };
 
-@Command("ward group")
+@Command("guild-ranks group")
 export class WardGroup {
   @Arg("group", { type: "string", suggest: groupSuggester })
   group!: string;
 
   @Run
   async run(ctx: CommandCtx) {
-    if (!requirePerm(ctx, "ward.group.info")) return;
+    if (!requirePerm(ctx, "guild-ranks.group.info")) return;
     await renderGroupCard(ctx, this.group);
   }
 }`}
         />
         <Note>
           Suggesters run on every tab-press and should be cheap. Prime the data
-          they consult at script-load and keep it in memory; ward refreshes its
-          group cache after every mutation so the suggester stays
+          they consult at script-load and keep it in memory; guild-ranks
+          refreshes its group cache after every mutation so the suggester stays
           sub-millisecond.
         </Note>
       </Section>
@@ -114,12 +114,13 @@ export class WardGroup {
           <code>@Command</code> takes a space-separated path. Each segment
           becomes a literal in the Brigadier tree; each class is one leaf. The
           host stitches the tree together by matching prefixes, so{" "}
-          <code>ward group create</code> and <code>ward group prefix set</code>{" "}
-          can coexist as siblings of <code>ward group</code>.
+          <code>guild-ranks group create</code> and{" "}
+          <code>guild-ranks group prefix set</code> can coexist as siblings of{" "}
+          <code>guild-ranks group</code>.
         </p>
         <CodeBlock
           lang="typescript"
-          code={`@Command("ward group create")
+          code={`@Command("guild-ranks group create")
 export class WardGroupCreate {
   @Arg("name", { type: "string" })
   name!: string;
@@ -138,9 +139,9 @@ export class WardGroupCreate {
 }`}
         />
         <p>
-          The parent path (<code>ward group</code> on its own) is a valid leaf
-          if you also declare it; without an explicit{" "}
-          <code>@Command(&quot;ward group&quot;)</code> class the parent
+          The parent path (<code>guild-ranks group</code> on its own) is a valid
+          leaf if you also declare it; without an explicit{" "}
+          <code>@Command(&quot;guild-ranks group&quot;)</code> class the parent
           tab-completes to its children but won't run.
         </p>
       </Section>
@@ -152,15 +153,15 @@ export class WardGroupCreate {
         </p>
         <CodeBlock
           lang="typescript"
-          code={`@Command("ward", {
-  description: "Ward permissions management",
+          code={`@Command("guild-ranks", {
+  description: "Guild Ranks permissions management",
   aliases: ["perms", "permissions"],
-  permission: "ward.command.ward",
+  permission: "guild-ranks.command.guild-ranks",
 })
 export class WardRoot {
   @Run
   run(ctx: CommandCtx) {
-    ctx.sender.sendMessage("see /ward help");
+    ctx.sender.sendMessage("see /guild-ranks help");
   }
 }`}
         />
@@ -181,7 +182,7 @@ export class WardRoot {
         </p>
         <CodeBlock
           lang="typescript"
-          code={`@Command("ward group prefix set")
+          code={`@Command("guild-ranks group prefix set")
 export class WardGroupPrefixSet {
   @Arg("group", { type: "string", suggest: groupSuggester })
   group!: string;
@@ -202,8 +203,8 @@ export class WardGroupPrefixSet {
         <p>
           If you'd rather construct commands at runtime — say, registering
           commands from a config file — use the builder.{" "}
-          <code>rune.command(&quot;ward&quot;)</code> returns a fluent surface
-          that mirrors the decorators.
+          <code>rune.command(&quot;guild-ranks&quot;)</code> returns a fluent
+          surface that mirrors the decorators.
         </p>
         <CodeBlock
           lang="typescript"

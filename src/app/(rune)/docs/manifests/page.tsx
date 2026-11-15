@@ -5,7 +5,7 @@ import { DocsPage, Note, Section, Sub } from "@/components/docs/docs-page";
 export const metadata: Metadata = {
   title: "Manifests",
   description:
-    "Rune ships two manifests on purpose. rune.toml is the publish-side identity; rune.jsonc is the runtime configuration.",
+    "Use rune.toml for the package and entry point, and rune.jsonc for optional Paper integrations.",
 };
 
 export default function ManifestsPage() {
@@ -13,36 +13,29 @@ export default function ManifestsPage() {
     <DocsPage
       slug="manifests"
       title="Manifests."
-      description="Every Rune carries two manifests, and they answer different questions. rune.toml answers 'who is this package'; rune.jsonc answers 'what does this script need at runtime'. They overlap on identity and stay separate on intent."
+      description="Use rune.toml to declare the package identity, source entry point, and files to publish. Add rune.jsonc when your Rune needs to link Java plugins or define aliases."
     >
       <Section title="rune.toml">
         <p>
-          The CLI reads <code>rune.toml</code> when it packs an archive for
-          publishing. It's a TOML file with three sections you'll write and a
-          few you might.
+          The CLI reads <code>rune.toml</code> when it packs an archive. The
+          runtime uses its <code>entry</code> to load the source.
         </p>
         <CodeBlock
           lang="toml"
-          code={`[package]
-name        = "ward"                  # required, lowercase + hyphens
-version     = "0.1.0"                 # required, semver
-language    = "typescript"            # required: "typescript" | "wasm"
-entry       = "index.ts"              # required, relative to manifest
-description = "Permissions + web dashboard for Paper"
+          code={`name        = "sprint-arena"
+version     = "0.1.0"
+language    = "typescript"
+entry       = "src/index.ts"
+description = "A timed parkour race for Paper"
 license     = "MIT"
-homepage    = "https://github.com/your/ward"
-repository  = "https://github.com/your/ward"
-keywords    = ["permissions", "web", "rank-up"]
+keywords    = ["arena", "parkour"]
 
 [publish]
-include = ["**/*.ts", "rune.jsonc", "README*", "LICENSE*"]
+include = ["src/**", "rune.toml", "rune.jsonc", "README*", "LICENSE*"]
 exclude = ["**/*.test.ts", "dist/**"]
 
 [capabilities]
-required = ["host:bukkit", "host:plugin:vault", "host:plugin:papi"]
-
-[dependencies]
-"@rune/sdk" = "^0.4.0"`}
+required = ["host:bukkit", "host:store"]`}
         />
         <Sub title="Package identity">
           <p>

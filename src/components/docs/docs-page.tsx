@@ -1,5 +1,6 @@
 import { PageNav } from "@/components/docs/page-nav";
-import { findDoc } from "@/lib/docs/nav";
+import { Breadcrumbs } from "@/components/marketing/breadcrumbs";
+import { docHref, findDoc } from "@/lib/docs/nav";
 
 interface Props {
   slug: string;
@@ -10,37 +11,42 @@ interface Props {
 
 export function DocsPage({ slug, title, description, children }: Props) {
   const position = findDoc(slug);
-  const groupLabel = position?.group.title.toLowerCase() ?? "docs";
+  const trail = [{ label: "Docs", href: "/docs" }];
+  if (slug)
+    trail.push({ label: position?.item.title ?? title, href: docHref(slug) });
 
   return (
     <article className="docs-prose min-w-0">
-      <p className="mb-4 font-mono text-xs text-muted-foreground">
-        docs · {groupLabel}
-      </p>
-      <h1 className="font-medium leading-[1.15] tracking-tight text-display text-3xl sm:text-4xl">
-        {title}
-      </h1>
-      {description && (
-        <p className="mt-4 max-w-prose text-base leading-relaxed text-foreground">
-          {description}
-        </p>
-      )}
-      <div className="mt-12 space-y-8">{children}</div>
+      <Breadcrumbs items={trail} />
+      <h1 className="page-heading">{title.replace(/\.$/, "")}</h1>
+      {description && <p className="page-intro">{description}</p>}
+      <div className="mt-10 space-y-10 sm:mt-12 sm:space-y-12">{children}</div>
       {position && <PageNav position={position} />}
     </article>
   );
 }
 
 export function Section({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section>
-      <h2 className="text-xl font-medium tracking-tight text-display sm:text-2xl">
+    <section
+      id={
+        id ??
+        title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/-$/, "")
+      }
+      className="doc-section"
+    >
+      <h2 className="text-xl font-semibold tracking-tight text-display sm:text-2xl">
         {title}
       </h2>
       <div className="mt-4 space-y-4">{children}</div>

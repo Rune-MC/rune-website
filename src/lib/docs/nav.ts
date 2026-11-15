@@ -11,22 +11,28 @@ export interface DocGroup {
 
 export const docNav: DocGroup[] = [
   {
-    title: "Getting started",
+    title: "Get started",
     items: [
       {
         slug: "",
-        title: "Introduction",
-        summary: "What Rune is and how the pieces fit together.",
+        title: "Overview",
+        summary: "Choose a language or find a task in the documentation.",
       },
       {
         slug: "quickstart",
-        title: "Quickstart",
-        summary: "From zero to a running Rune in under five minutes.",
+        title: "TypeScript and JavaScript",
+        summary: "Quickstart for TypeScript JavaScript Node.js Paper scripts.",
+      },
+      {
+        slug: "quickstart/python",
+        title: "Python quickstart",
+        summary:
+          "Install CPython, scaffold a script, and handle a Paper event.",
       },
     ],
   },
   {
-    title: "Concepts",
+    title: "Understand Rune",
     items: [
       {
         slug: "manifests",
@@ -51,12 +57,23 @@ export const docNav: DocGroup[] = [
     ],
   },
   {
-    title: "Authoring",
+    title: "Build a Rune",
     items: [
       {
         slug: "listeners",
         title: "Listeners",
         summary: "@Listener and @EventHandler for Bukkit events.",
+      },
+      {
+        slug: "extensions",
+        title: "Extensions",
+        summary:
+          "Connect Runes with services, events, settings, and dashboard panels.",
+      },
+      {
+        slug: "adventure",
+        title: "Adventure and primitives",
+        summary: "Chat, titles, sounds, and commonly used Paper objects.",
       },
       {
         slug: "commands",
@@ -91,7 +108,7 @@ export const docNav: DocGroup[] = [
     ],
   },
   {
-    title: "Reference",
+    title: "Package and publish",
     items: [
       {
         slug: "cli",

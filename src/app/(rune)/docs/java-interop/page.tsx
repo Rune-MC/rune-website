@@ -81,7 +81,7 @@ const enumValue = rune.callStatic(
           interface — a listener, a handler, a provider.{" "}
           <code>rune.implement(fqcn, methods)</code> generates a Java subclass
           at runtime that routes intercepted method calls to your JS object.
-          ward uses it to register a PlaceholderAPI expansion, which
+          guild-ranks uses it to register a PlaceholderAPI expansion, which
           PlaceholderAPI insists on receiving as a Java instance.
         </p>
         <CodeBlock
@@ -89,8 +89,8 @@ const enumValue = rune.callStatic(
           code={`expansionRef = rune.implement(
   "me.clip.placeholderapi.expansion.PlaceholderExpansion",
   {
-    getIdentifier: () => "ward",
-    getAuthor:     () => "ward",
+    getIdentifier: () => "guild-ranks",
+    getAuthor:     () => "guild-ranks",
     getVersion:    () => "1.0",
     persist:       () => true,
     canRegister:   () => true,
@@ -142,7 +142,7 @@ papi.PlaceholderAPI.registerExpansion(expansionRef);`}
         <CodeBlock
           lang="typescript"
           code={`if (typeof vault === "undefined") {
-  console.warn("[ward] Vault not installed; economy disabled.");
+  console.warn("[guild-ranks] Vault not installed; economy disabled.");
 } else {
   const eco = vault.RegisteredServiceProvider.get(
     "net.milkbowl.vault.economy.Economy",
