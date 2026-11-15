@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { CodeBlock } from "@/components/code-block";
-import { DocsPage, Note, Section } from "@/components/docs/docs-page";
+import { DocsPage, Section } from "@/components/docs/docs-page";
 
 export const metadata: Metadata = {
   title: "Menus",
   description:
-    "rune.gui() builds chest-style inventory UIs with per-slot click handlers, decorative fills, and pagination.",
+    "rune.gui() builds chest-style inventory UIs with per-slot click handlers, decorative fills, and private chat prompts.",
 };
 
 export default function MenusPage() {
@@ -13,7 +13,7 @@ export default function MenusPage() {
     <DocsPage
       slug="menus"
       title="Menus."
-      description="rune.gui() is the chest-inventory UI builder. You declare a title and a row count, fill it with items, attach click handlers per slot, and open it on a player. Clicks are auto-cancelled so the inventory acts as a control surface rather than something the player drags items in and out of."
+      description="rune.gui() is the chest-inventory UI builder. You declare a title and a row count, fill it with items, attach click handlers per slot, and open it on a player. Rune protects its menus from inventory clicks, drags, and creative item changes."
     >
       <Section title="A simple menu">
         <p>
@@ -30,16 +30,20 @@ export default function MenusPage() {
 
   gui.fill(GLASS());                             // decorative background
   gui.slot(11, USERS_ICON(player), (e) => {
-    openUsersMenu(e.getWhoClicked() as Player, 0);
+    const clicked = e.getWhoClicked() as Player;
+    rune.schedule.nextTick(() => openUsersMenu(clicked, 0));
   });
   gui.slot(13, GROUPS_ICON(), (e) => {
-    openGroupsMenu(e.getWhoClicked() as Player, 0);
+    const clicked = e.getWhoClicked() as Player;
+    rune.schedule.nextTick(() => openGroupsMenu(clicked, 0));
   });
   gui.slot(15, TRACKS_ICON(), (e) => {
-    openTracksMenu(e.getWhoClicked() as Player, 0);
+    const clicked = e.getWhoClicked() as Player;
+    rune.schedule.nextTick(() => openTracksMenu(clicked, 0));
   });
   gui.slot(22, CLOSE_ICON(), (e) => {
-    e.getWhoClicked().closeInventory();
+    const clicked = e.getWhoClicked();
+    rune.schedule.nextTick(() => clicked.closeInventory());
   });
 
   gui.open(player);
@@ -49,7 +53,9 @@ export default function MenusPage() {
           The handler signature mirrors <code>InventoryClickEvent</code> — you
           get the full event, including which item was clicked and which mouse
           button was used. The event is auto-cancelled before your handler runs,
-          so the player can't accidentally take the icon out.
+          so the player can’t take the icon out. Use{" "}
+          <code>rune.schedule.nextTick</code> when opening another inventory or
+          closing it from a click handler.
         </p>
       </Section>
 
@@ -121,45 +127,32 @@ export function paginate<T>(all: T[], page: number, size: number): Page<T> {
         </p>
       </Section>
 
-      <Section title="Chat prompts">
+      <Section title="Private chat prompts">
         <p>
-          For text input — naming a group, picking a number — chest GUIs don't
-          help. guild-ranks uses a chat-prompt pattern: close the inventory,
-          send a question, register a one-shot chat listener, resolve a promise
-          with the typed answer.
+          Rune 0.5.1 adds <code>rune.gui.prompt(player, spec)</code> and{" "}
+          <code>gui.prompt(player, spec)</code>. The prompt closes the inventory
+          and reads the player’s next chat message privately. By default it
+          expires after 60 seconds. The player can type <code>!cancel</code> to
+          cancel.
         </p>
         <CodeBlock
           lang="typescript"
-          code={`export function prompt(player: Player, question: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    runOnMain(() => {
-      player.closeInventory();
-      player.sendMessage(rune.mm(question));
-    });
-
-    awaitChat(String(player.getUniqueId()), (text) => {
-      const trimmed = text.trim();
-      if (!trimmed || trimmed.toLowerCase() === "cancel") {
-        resolve(null);
-        return;
-      }
-      resolve(trimmed);
-    });
+          code={`export function askForLabel(player: Player) {
+  rune.gui.prompt(player, {
+    title: "New label",
+    hint: "Type in chat or enter !cancel.",
+    timeoutMs: 30_000,
+    onReply: (text, player) => player.sendMessage("Label: " + text),
+    onCancel: (player) => player.sendMessage("Canceled."),
+    onTimeout: (player) => player.sendMessage("Prompt expired."),
   });
 }`}
         />
         <p>
-          The internal <code>awaitChat</code> helper is a registry keyed by
-          UUID; an underlying <code>@EventHandler</code> on{" "}
-          <code>AsyncChatEvent</code> looks the player up, cancels the event,
-          and fires the callback. Reload clears the registry — if a player was
-          mid-prompt, they need to re-open the menu.
+          Opening another Rune GUI or disconnecting clears the prompt. Use{" "}
+          <code>rune.gui.hasPrompt(player)</code> to check for one and{" "}
+          <code>rune.gui.cancelPrompt(player)</code> to clear it yourself.
         </p>
-        <Note>
-          Don't try to use a sign-edit GUI or a written-book trick to get text
-          input. They're laggy on modern clients and don't survive reload. A
-          chat prompt with a clean cancel path is worth the extra two lines.
-        </Note>
       </Section>
 
       <Section title="Decorating with fills">
@@ -175,7 +168,10 @@ export function paginate<T>(all: T[], page: number, size: number): Page<T> {
           code={`gui.border(GLASS());                          // frame
 gui.slot(13, PRIMARY_ACTION_ICON(), onClick);  // centerpiece
 gui.slot(15, SECONDARY_ICON(), onSecondary);
-gui.slot(22, CLOSE_ICON(), (e) => e.getWhoClicked().closeInventory());`}
+gui.slot(22, CLOSE_ICON(), (e) => {
+  const clicked = e.getWhoClicked();
+  rune.schedule.nextTick(() => clicked.closeInventory());
+});`}
         />
       </Section>
     </DocsPage>
